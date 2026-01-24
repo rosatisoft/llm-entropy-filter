@@ -13,11 +13,18 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist node_modules package-lock.json",
     "build": "tsup",
-    "prepublishOnly": "npm run clean && npm run build"
+    "demo": "npm run build && node demo/demo.mjs",
+    "bench": "npm run build && node bench/benchmark.mjs",
+    "serve": "node server.js",
+    "prepublishOnly": "npm run clean:dist && npm run build",
+    "clean:dist": "rm -rf dist"
   },
   "repository": {
     "type": "git",
@@ -32,5 +39,8 @@
     "@types/node": "^25.0.10",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
