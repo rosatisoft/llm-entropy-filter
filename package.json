@@ -2,6 +2,7 @@
   "name": "llm-entropy-filter",
   "version": "1.0.0",
   "description": "entropy_analysis, intention_evaluation, triad_response, plain_text_summary",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -19,12 +20,12 @@
   ],
   "scripts": {
     "clean": "rm -rf dist node_modules package-lock.json",
+    "clean:dist": "rm -rf dist",
     "build": "tsup",
     "demo": "npm run build && node demo/demo.mjs",
     "bench": "npm run build && node bench/benchmark.mjs",
-    "serve": "node server.js",
-    "prepublishOnly": "npm run clean:dist && npm run build",
-    "clean:dist": "rm -rf dist"
+    "serve": "npm run build && node demo/server.mjs",
+    "prepublishOnly": "npm run clean:dist && npm run build"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
   "homepage": "https://github.com/rosatisoft/llm-entropy-filter#readme",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^25.0.10",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
