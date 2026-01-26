@@ -10,7 +10,8 @@ export type IntentionType =
   | "request_help"
   | "marketing_spam"
   | "manipulation"
-  | "conspiracy";
+  | "conspiracy"
+  | "misinformation";
 
 export type IntentionEvaluation = {
   intention: IntentionType;

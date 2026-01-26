@@ -30,6 +30,13 @@ export function evaluateIntention(text: string): IntentionEvaluation {
       t
     );
 
+  // NUEVO: pseudo-ciencia / pensamiento mágico / relativismo (desinformación)
+  const isMisinformation =
+    /\b(física cuántica|cuantica|cuántica|cuántico|quantum)\b/.test(t) ||
+    /\b(manifestar|manifestación|decretar|decreto|vibración|vibracion|frecuencia|energía|energia|ley de la atracción)\b/.test(t) ||
+    /\b(no hay una verdad objetiva|no existe la verdad objetiva|tu verdad|mi verdad|la verdad es relativa)\b/.test(t) ||
+    /\b(la materia)\b.*\b(se subordina|obedece)\b/.test(t);
+
   let intention: IntentionType = "unknown";
   let confidence = 0.0;
   let rationale = "";
@@ -46,6 +53,11 @@ export function evaluateIntention(text: string): IntentionEvaluation {
     intention = "conspiracy";
     confidence = 0.75;
     rationale = "Detecté marco conspirativo vago ('lo esconden', 'todos lo saben').";
+  } else if (isMisinformation) {
+    intention = "misinformation";
+    confidence = 0.85;
+    rationale =
+      "Detecté patrón de pseudo-ciencia/pensamiento mágico/relativismo de la verdad (alta probabilidad de desinformación).";
   } else if (isHelp) {
     intention = "request_help";
     confidence = 0.7;

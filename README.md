@@ -102,6 +102,23 @@ Comparative benchmark: LLM calls with vs without gating
 
 ---
 
+## Conceptual Model
+
+This package is a **pre-reasoning coherence gate** for LLM pipelines.
+
+It does not “solve philosophy” or attempt to prove metaphysical claims.
+Instead, it enforces minimal structural constraints **before** an LLM call:
+
+- Signal vs noise separation
+- Causal coherence (rejects broken-causality framing)
+- Detection of manipulative patterns (spam / coercion)
+- Detection of pseudo-scientific or relativistic framing
+
+**Goal:** reduce computational entropy and hallucination risk by preventing
+high-noise or structurally incoherent inputs from reaching the model.
+
+---
+
 ## License
 
 This project is licensed under the **Apache License 2.0**.
