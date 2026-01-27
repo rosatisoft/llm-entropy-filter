@@ -9,4 +9,5 @@ export type {
   IntentionEvaluation,
   FilterResult
 } from "./types";
+export { gateLLM as gate } from "./gate";
 export * from "./gate";

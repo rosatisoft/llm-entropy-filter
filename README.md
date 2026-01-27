@@ -1,16 +1,33 @@
+README.md reescrito (v1.0.0 listo para publicar)
+
+Basado en tu README actual 
+
+README (5)
+
+, aquí va una versión limpia, con tus métricas reales, endpoints, bench y dataset.
+
+Copia y pega esto como README.md:
+
 # llm-entropy-filter
 
 Minimal, fast **entropy + intent gate** for LLM inputs.
 
-This package detects high-entropy patterns (spam, coercion, vague conspiracies, pseudo-science, truth relativism, broken causality) and returns:
+This package runs a **local, deterministic heuristic gate** to detect high-entropy / low-signal inputs (spam, coercion, vague conspiracies, pseudo-science, truth relativism, broken causality) and returns an **ALLOW / WARN / BLOCK** verdict.
 
-- `entropy_analysis` → `{ score: 0..1, flags: string[] }`
-- `intention_evaluation` → `{ intention, confidence, rationale }`
+Use it **before** calling an LLM to reduce hallucinations, cost, and risk.
 
-Use it as a **pre-filter** (middleware/wrapper) to:
-- block low-signal / high-entropy prompts,
-- warn and request reformulation,
-- reduce hallucinations and unnecessary LLM calls.
+---
+
+## What you get
+
+### Core (library)
+- `gate(text)` → `{ action, entropy_score, flags, intention, confidence, rationale }`
+- `gateLLM(text)` → alias of `gate(text)` (kept for compatibility)
+- `runEntropyFilter(text)` → underlying entropy + intention analysis utilities
+
+### Demo (server)
+- `POST /analyze` → runs local `gate(text)` + returns `meta.ts` + `meta.version`
+- `POST /triad` → optional OpenAI analysis (only if `OPENAI_API_KEY` is set)
 
 ---
 
@@ -19,129 +36,160 @@ Use it as a **pre-filter** (middleware/wrapper) to:
 ```bash
 npm i llm-entropy-filter
 
+Quickstart (library)
+import { gate } from "llm-entropy-filter";
 
-Quickstart
-import { runEntropyFilter } from "llm-entropy-filter";
+const r = gate("¡¡COMPRA YA!! Oferta limitada 90% OFF $$$");
+console.log(r);
 
-const r = runEntropyFilter("¡¡COMPRA YA!! Oferta limitada 90% OFF $$$");
-console.log(r.entropy_analysis.score, r.entropy_analysis.flags);
-console.log(r.intention_evaluation);
-
-
-Output example (Entropy Trap)
-Input:
-“La física cuántica ya demostró… tú decretas… no hay verdad objetiva…”
-Result:
-{
-  "entropy_analysis": {
-    "score": 1,
-    "flags": [
-      "urgency",
-      "pseudo_science_quantum",
-      "magic_manifesting",
-      "truth_relativism",
-      "broken_causality"
-    ]
-  },
-  "intention_evaluation": {
-    "intention": "misinformation",
-    "confidence": 0.85,
-    "rationale": "Detecté patrón de pseudo-ciencia/pensamiento mágico/relativismo de la verdad; alta probabilidad de desinformación o argumento sin anclaje causal."
-  }
-}
-
-
-Recommended usage: ALLOW / WARN / BLOCK
-A simple policy layer on top of entropy_analysis.score:
-< 0.25 → ALLOW
-0.25 – 0.60 → WARN (ask user to clarify / add evidence)
-> 0.60 → BLOCK (reject or require rewrite)
-Example:
-import { runEntropyFilter } from "llm-entropy-filter";
-
-function verdict(score: number) {
-  if (score > 0.6) return "BLOCK";
-  if (score >= 0.25) return "WARN";
-  return "ALLOW";
-}
-
-export function gate(text: string) {
-  const r = runEntropyFilter(text);
-  return { action: verdict(r.entropy_analysis.score), ...r };
-}
-
-
-CLI / Demo
-npm run demo
-
-
-Benchmark
-Heuristic filter throughput (local):
-npm run bench
 
 Example output:
-~313k ops/sec (200k loops)
 
-API
-runEntropyFilter(text: string)
-Returns:
-entropy_analysis: { score: number; flags: string[] }
-intention_evaluation: { intention: "unknown" | "request_help" | "marketing_spam" | "manipulation" | "conspiracy" | "misinformation"; confidence: number; rationale?: string }
+{
+  "action": "BLOCK",
+  "entropy_score": 0.7,
+  "flags": ["urgency","spam_sales","money_signal","shouting"],
+  "intention": "marketing_spam",
+  "confidence": 0.85,
+  "rationale": "Detecté señales de venta agresiva/urgencia/dinero."
+}
+
+Demo server (Express)
+
+Start:
+
+npm run serve
+
+
+Health:
+
+curl -s http://127.0.0.1:3000/health
+
+
+Local gate:
+
+curl -s -X POST http://127.0.0.1:3000/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Congratulations! You won a FREE iPhone. Click here to claim now!"}' | jq .
+
+
+You will also see:
+
+"meta": { "ts": 1769546511060, "version": "1.0.0" }
+
+Optional: OpenAI triad demo
+export OPENAI_API_KEY="YOUR_KEY"
+export OPENAI_MODEL="gpt-4.1-mini"
+
+curl -s -X POST http://127.0.0.1:3000/triad \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Vivimos en una simulación y todos lo esconden."}' | jq .
+
+
+/triad is a demo layer. The product is the local gate().
+
+Benchmarks (measured)
+HTTP gate /analyze (local, deterministic)
+
+Command:
+
+npx autocannon -m POST -c 30 -d 10 --renderStatusCodes \
+  http://127.0.0.1:3000/analyze \
+  -H "Content-Type: application/json" \
+  -b '{"text":"Congratulations. You won a FREE iPhone. Click here to claim now."}'
+
+
+Observed (typical run):
+
+~5.2k req/s
+
+~5.1 ms avg latency (p50 ~4 ms)
+
+LLM demo /triad (OpenAI)
+
+Command:
+
+npx autocannon -m POST -c 2 -d 30 --renderStatusCodes \
+  http://127.0.0.1:3000/triad \
+  -H "Content-Type: application/json" \
+  -b '{"text":"Texto real de prueba (1-3 párrafos) ..."}'
+
+
+Observed (typical run):
+
+~1.7 req/s
+
+~1.17 s avg latency
+
+Dataset mini + bench script (no HTTP)
+
+A tiny CSV lives at:
+
+bench/sms_spam.csv
+
+Run the bench:
+
+node bench/sms_spam_bench.mjs bench/sms_spam.csv
+cat bench/reports/sms_spam_report.md
+
+
+Typical report:
+
+Throughput: ~9–10k samples/sec
+
+Actions: ALLOW / WARN / BLOCK distribution
+
+Confusion table (ground truth spam/ham → action)
+
+Top flags + intentions
+
+JSON + Markdown reports written to bench/reports/
 
 Design goals
+
 Fast: pure heuristics, no network calls
+
 Portable: works in any Node environment
-Composable: use as middleware/wrapper before calling an LLM
-Transparent: flags explain why a prompt is risky
+
+Composable: middleware/wrapper before calling an LLM
+
+Transparent: flags explain why an input is risky
+
+Observable: /analyze returns meta.ts and meta.version
 
 Roadmap
-gate() helper exported by the library (standard thresholds)
-Optional suggested_rewrite (ask for evidence/context to reduce entropy)
-Example integrations: Next.js / Vercel API Route, Express, Cloudflare Workers
-Comparative benchmark: LLM calls with vs without gating
 
----
+Expand multilingual spam patterns
 
-## Conceptual Model
+Optional suggested_rewrite to lower entropy
 
-This package is a **pre-reasoning coherence gate** for LLM pipelines.
+Example integrations: Next.js / Vercel, Express, Cloudflare Workers
 
-It does not “solve philosophy” or attempt to prove metaphysical claims.
-Instead, it enforces minimal structural constraints **before** an LLM call:
+Extended dataset benches + cost-savings estimates
 
-- Signal vs noise separation
-- Causal coherence (rejects broken-causality framing)
-- Detection of manipulative patterns (spam / coercion)
-- Detection of pseudo-scientific or relativistic framing
+Install:
 
-**Goal:** reduce computational entropy and hallucination risk by preventing
-high-noise or structurally incoherent inputs from reaching the model.
+npm i llm-entropy-filter
 
----
 
-## License
+Ejemplo mínimo:
 
-This project is licensed under the **Apache License 2.0**.
+import { gate } from "llm-entropy-filter";
+console.log(gate("Congratulations. You won a FREE iPhone. Click here."));
+
+
+Bench results (tu mejor “prueba”):
+
+/analyze ~ 5k req/sec
+
+/triad ~ 1–2 req/sec (LLM)
+
+License
+
+Apache-2.0
 
 Copyright (c) 2026 Ernesto Rosati
 
-You are free to:
 
-- Use the software for personal or commercial purposes  
-- Modify the source code  
-- Distribute original or modified versions  
+---
 
-Under the following conditions:
-
-- You must retain the original copyright notice  
-- You must include a copy of the Apache 2.0 license  
-- Any modifications must be clearly documented  
-
-### Attribution & Support
-
-If you use this project in production systems or commercial applications,
-please retain attribution to the original author.
-
-Voluntary collaboration, sponsorship, or technical partnership inquiries are welcome.
-
-For the full license text, see the `LICENSE` file in this repository.
