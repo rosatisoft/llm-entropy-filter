@@ -1,6 +1,6 @@
 {
   "name": "llm-entropy-filter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fast entropy and intent gate for LLM inputs (ALLOW/WARN/BLOCK). Reduces hallucinations, cost and spam before calling an LLM.",
   "keywords": [
     "llm",
