@@ -1,0 +1,25 @@
+{
+  "name": "strict",
+  "version": 1,
+  "description": "Aggressive preset for public endpoints and high-abuse environments.",
+  "thresholds": { "warn": 0.35, "block": 0.55 },
+  "normalization": { "lowercase": true, "trim": true, "collapse_whitespace": true, "unicode_nfkc": true },
+  "hard_triggers": [
+    { "id": "shouting", "type": "signal", "weight": 0.22, "patterns": ["[A-ZÁÉÍÓÚÑ]{5,}", "!!+", "\\?\\?+", "¡¡+"] },
+    { "id": "money_signal", "type": "topic_hint", "weight": 0.18, "patterns": ["\\$\\d+", "\\b%\\b", "\\bfree\\b", "\\bgratis\\b"] },
+    { "id": "links", "type": "signal", "weight": 0.20, "patterns": ["https?://", "www\\.", "\\bbit\\.ly\\b"] },
+    { "id": "conspiracy_vague", "type": "topic_hint", "weight": 0.18, "patterns": ["\\btodos\\s+lo\\s+esconden\\b", "\\btruth\\s+is\\s+hidden\\b"] }
+  ],
+  "topics": [
+    { "id": "marketing_spam", "weight": 0.45, "signals": [
+      { "id": "cta", "weight": 0.22, "patterns": ["\\bclick\\b", "\\bclaim\\b", "\\bbuy\\b", "\\bcompra\\b"] },
+      { "id": "promo", "weight": 0.18, "patterns": ["\\bwin\\b", "\\bganaste\\b", "\\bgratis\\b", "\\bfree\\b"] }
+    ]},
+    { "id": "coercion", "weight": 0.30, "signals": [
+      { "id": "threat", "weight": 0.22, "patterns": ["\\bor\\s+else\\b", "\\bsi\\s+no\\b", "\\bI\\s+will\\b", "\\bte\\s+voy\\s+a\\b"] }
+    ]},
+    { "id": "conspiracy", "weight": 0.25, "signals": [
+      { "id": "hidden", "weight": 0.20, "patterns": ["\\bocult\\w+\\b", "\\bhidden\\b", "\\bsecret\\b"] }
+    ]}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "support",
+  "version": 1,
+  "description": "Customer-support preset: minimizes false positives for normal conversation.",
+  "thresholds": { "warn": 0.55, "block": 0.75 },
+  "normalization": { "lowercase": true, "trim": true, "collapse_whitespace": true, "unicode_nfkc": true },
+  "hard_triggers": [
+    { "id": "links", "type": "signal", "weight": 0.10, "patterns": ["https?://", "www\\."] }
+  ],
+  "topics": [
+    { "id": "marketing_spam", "weight": 0.25, "signals": [
+      { "id": "cta", "weight": 0.12, "patterns": ["\\bclick\\b", "\\bclaim\\b"] },
+      { "id": "promo", "weight": 0.10, "patterns": ["\\bfree\\b", "\\bgratis\\b"] }
+    ]},
+    { "id": "coercion", "weight": 0.20, "signals": [
+      { "id": "threat", "weight": 0.12, "patterns": ["\\bor\\s+else\\b", "\\bI\\s+will\\b"] }
+    ]},
+    { "id": "conspiracy", "weight": 0.15, "signals": [
+      { "id": "hidden", "weight": 0.10, "patterns": ["\\btruth\\s+hidden\\b", "\\bverdad\\s+oculta\\b"] }
+    ]}
+  ]
+}

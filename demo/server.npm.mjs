@@ -1,7 +1,16 @@
 import express from "express";
 import OpenAI from "openai";
 
-import { gate } from "../dist/index.js";
+import { gate } from "llm-entropy-filter"; // ✅ como usuario npm
+
+// Opcional: versión del paquete (sin JSON assert: usamos createRequire)
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const APP_VERSION = process.env.APP_VERSION || "demo";
+const LIB_VERSION =
+  process.env.LLM_ENTROPY_FILTER_VERSION ||
+  process.env.npm_package_version ||
+  "unknown";
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -10,45 +19,23 @@ const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
-const APP_VERSION =
-  process.env.APP_VERSION ||
-  process.env.npm_package_version || // cuando lo corres con npm run ...
-  "dev";
+const APP_VERSION = process.env.APP_VERSION || "demo";
+const LIB_VERSION = pkg.version;
 
-// Self-test opcional (solo si lo pides)
-if (process.env.DEBUG_SELFTEST === "1") {
-  const t = "Congratulations. You won a FREE iPhone. Click here to claim now.";
-  console.log("[debug] gate selftest:", gate(t));
-}
+app.get("/health", (req, res) =>
+  res.json({ ok: true, app_version: APP_VERSION, lib_version: LIB_VERSION })
+);
 
-app.get("/health", (req, res) => res.json({ ok: true, version: APP_VERSION }));
-
-app.get("/", (req, res) => {
-  res.type("text").send(
-    "llm-entropy-filter is running. Try GET /health or POST /analyze (and POST /triad if OPENAI_API_KEY is set)."
-  );
-});
-
-// 1) Gate local (producto v1.0.x)
 app.post("/analyze", (req, res) => {
   const text = String(req.body?.text ?? "");
   const out = gate(text);
 
-  // Debug por request (solo si lo pides)
-  if (process.env.DEBUG_ANALYZE === "1") {
-    console.log("[debug] /analyze hit:", Date.now(), "len=", text.length, "action=", out.action);
-  }
-
   res.json({
     ...out,
-    meta: {
-      ts: Date.now(),
-      version: APP_VERSION,
-    },
+    meta: { ts: Date.now(), app_version: APP_VERSION, lib_version: LIB_VERSION },
   });
 });
 
-// 2) Triad demo (opcional: usa OpenAI)
 app.post("/triad", async (req, res) => {
   const text = String(req.body?.text ?? "");
   const out = gate(text);
@@ -78,16 +65,10 @@ ${text}`;
 
   const triadText = completion.choices?.[0]?.message?.content ?? "";
 
-  res.json({
-    gate: out,
-    triad: {
-      model,
-      text: triadText,
-    },
-  });
+  res.json({ gate: out, triad: { model, text: triadText } });
 });
 
 const port = Number(process.env.PORT || 3000);
 app.listen(port, "0.0.0.0", () => {
-  console.log(`[entropy-filter] listening on http://0.0.0.0:${port}`);
+  console.log(`[entropy-filter npm demo] listening on http://0.0.0.0:${port}`);
 });

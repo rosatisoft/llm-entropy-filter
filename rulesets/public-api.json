@@ -1,0 +1,27 @@
+{
+  "name": "public-api",
+  "version": 1,
+  "description": "Hardened preset for open/public APIs: reduces abuse and quota burn.",
+  "thresholds": { "warn": 0.40, "block": 0.60 },
+  "normalization": { "lowercase": true, "trim": true, "collapse_whitespace": true, "unicode_nfkc": true },
+  "hard_triggers": [
+    { "id": "links", "type": "signal", "weight": 0.22, "patterns": ["https?://", "www\\.", "\\bbit\\.ly\\b", "\\bt\\.co\\b"] },
+    { "id": "shouting", "type": "signal", "weight": 0.18, "patterns": ["[A-ZÁÉÍÓÚÑ]{5,}", "!!+", "\\?\\?+"] },
+    { "id": "money_signal", "type": "topic_hint", "weight": 0.16, "patterns": ["\\$\\d+", "\\b%\\b", "\\bfree\\b", "\\bgratis\\b"] }
+  ],
+  "topics": [
+    { "id": "marketing_spam", "weight": 0.40, "signals": [
+      { "id": "cta", "weight": 0.20, "patterns": ["\\bclick\\b", "\\bclaim\\b", "\\bbuy\\b", "\\bcompra\\b"] },
+      { "id": "promo", "weight": 0.18, "patterns": ["\\bfree\\b", "\\bgratis\\b", "\\bwin\\b", "\\bganaste\\b"] }
+    ]},
+    { "id": "coercion", "weight": 0.25, "signals": [
+      { "id": "threat", "weight": 0.18, "patterns": ["\\bor\\s+else\\b", "\\bsi\\s+no\\b", "\\bI\\s+will\\b"] }
+    ]},
+    { "id": "conspiracy", "weight": 0.20, "signals": [
+      { "id": "hidden", "weight": 0.14, "patterns": ["\\bocult\\w+\\b", "\\bhidden\\b", "\\bsecret\\b"] }
+    ]},
+    { "id": "incoherence", "weight": 0.15, "signals": [
+      { "id": "noise_markers", "weight": 0.10, "patterns": ["\\bqwerty\\b", "\\basdf\\b", "([!?.])\\1{4,}"] }
+    ]}
+  ]
+}
