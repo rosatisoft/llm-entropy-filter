@@ -59,6 +59,9 @@
     "bench:metrics": "npm run build && node bench/metrics.mjs --dataset bench/datasets/core_v1.jsonl --ruleset default",
     "bench:all": "npm run bench && npm run bench:metrics",
 
+    "bench:metrics:strict": "npm run build && node bench/metrics.mjs --dataset bench/datasets/core_v1.jsonl --ruleset strict",
+    "bench:metrics:public-api": "npm run build && node bench/metrics.mjs --dataset bench/datasets/core_v1.jsonl --ruleset public-api",
+
     "serve": "npm run build && node demo/server.mjs",
     "prepublishOnly": "npm run clean && npm run build"
   },

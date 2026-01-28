@@ -4,7 +4,6 @@ dist
 # Bench artifacts
 bench/reports/
 bench/*.csv
-bench/*.mjs
 lef-user-demo/
 test-app/# Dependencies
 node_modules/
@@ -21,7 +20,6 @@ yarn-error.log*
 # Bench artifacts
 bench/reports/
 bench/*.csv
-bench/*.mjs
 
 # Local demo / test apps
 lef-user-demo/
@@ -45,3 +43,7 @@ dist/
 
 # Local scripts / scratch
 scripts/
+
+# Legacy / experimental bench scripts
+bench/sms_spam_bench.mjs
+bench/benchmark.mjs
