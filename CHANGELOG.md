@@ -49,3 +49,7 @@ This release focuses on infrastructure packaging, documentation clarity, and int
 - Deterministic entropy scoring
 - ALLOW / WARN / BLOCK verdict structure
 - Performance benchmark documentation
+## 1.2.0 - 2026-01-28
+- (planned) Reproducible metrics suite (precision/recall)
+- (planned) Structured metrics output (non-breaking)
+- (planned) Ruleset configuration helpers (merge/validate)

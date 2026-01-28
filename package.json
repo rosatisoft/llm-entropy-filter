@@ -1,6 +1,6 @@
 {
   "name": "llm-entropy-filter",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Fast entropy and intent gate for LLM inputs (ALLOW/WARN/BLOCK). Reduces hallucinations, cost and spam before calling an LLM.",
   "license": "Apache-2.0",
   "type": "module",
@@ -17,14 +17,30 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./integrations/express": { "import": "./integrations/express.mjs" },
-    "./integrations/fastify": { "import": "./integrations/fastify.mjs" },
-    "./integrations/vercel-ai-sdk": { "import": "./integrations/vercel-ai-sdk.mjs" },
-    "./integrations/langchain": { "import": "./integrations/langchain.mjs" },
-    "./rulesets/default": { "import": "./rulesets/default.js" },
-    "./rulesets/strict": { "import": "./rulesets/strict.js" },
-    "./rulesets/public-api": { "import": "./rulesets/public-api.js" },
-    "./rulesets/support": { "import": "./rulesets/support.js" }
+    "./integrations/express": {
+      "import": "./integrations/express.mjs"
+    },
+    "./integrations/fastify": {
+      "import": "./integrations/fastify.mjs"
+    },
+    "./integrations/vercel-ai-sdk": {
+      "import": "./integrations/vercel-ai-sdk.mjs"
+    },
+    "./integrations/langchain": {
+      "import": "./integrations/langchain.mjs"
+    },
+    "./rulesets/default": {
+      "import": "./rulesets/default.js"
+    },
+    "./rulesets/strict": {
+      "import": "./rulesets/strict.js"
+    },
+    "./rulesets/public-api": {
+      "import": "./rulesets/public-api.js"
+    },
+    "./rulesets/support": {
+      "import": "./rulesets/support.js"
+    }
   },
   "files": [
     "dist",
