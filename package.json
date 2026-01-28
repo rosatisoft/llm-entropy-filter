@@ -55,6 +55,10 @@
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "demo": "npm run build && node demo/demo.mjs",
     "bench": "npm run build && node bench/benchmark.mjs",
+
+    "bench:metrics": "npm run build && node bench/metrics.mjs --dataset bench/datasets/core_v1.jsonl --ruleset default",
+    "bench:all": "npm run bench && npm run bench:metrics",
+
     "serve": "npm run build && node demo/server.mjs",
     "prepublishOnly": "npm run clean && npm run build"
   },
