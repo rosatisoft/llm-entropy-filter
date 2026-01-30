@@ -12,9 +12,41 @@ export type GateResult = {
   rationale: string;
 };
 
+export type RulesetThresholds = {
+  warn?: number;
+  block?: number;
+};
+
+export type RulesetPolicy = {
+  /** if true, allow strongSpam to force BLOCK */
+  strong_spam_block?: boolean;
+
+  /** optional overrides */
+  block_intentions?: string[];
+  warn_intentions?: string[];
+
+  /** flag overrides */
+  block_flags?: string[];
+  warn_flags?: string[];
+};
+
+export type RulesetConfig = {
+  name?: string;
+  version?: number;
+  description?: string;
+  thresholds?: RulesetThresholds;
+  policy?: RulesetPolicy;
+  // normalization is applied in wrapper/ruleset loader; kept here for completeness
+  normalization?: Record<string, unknown>;
+};
+
 export type GateConfig = {
-  warnThreshold?: number;  // default: 0.25
+  /** Per-call threshold overrides (fallback if ruleset.thresholds not provided) */
+  warnThreshold?: number; // default: 0.25
   blockThreshold?: number; // default: 0.60
+
+  /** Optional ruleset (default/strict/public-api) */
+  ruleset?: RulesetConfig;
 };
 
 /** Clamp 0..1 */
@@ -36,58 +68,91 @@ function mergeFlags(base: string[], extra: string[]) {
 }
 
 /**
- * Detección de spam/phishing en inglés por keywords.
- * Se implementa como “booster” de score + flags (sin tocar entropy.ts).
+ * Very small EN spam booster (keyword-ish).
+ * Keep it deterministic and cheap. Tune in src/entropy.ts for real weights/patterns.
  */
-function englishSpamBooster(rawText: string): {
+function englishSpamBooster(text: string): {
+  hitCount: number;
   addScore: number;
   addFlags: string[];
-  hitCount: number;
 } {
-  const t = (rawText || "").toLowerCase();
+  const t = (text || "").toLowerCase();
+  const hits: string[] = [];
 
-  // Patrones típicos (spam / phishing / promos agresivas)
-  const patterns: Array<{ re: RegExp; score: number; flag: string }> = [
-    { re: /\bfree\b/g, score: 0.08, flag: "spam_kw_free" },
-    { re: /\bwinner\b|\bwon\b|\bcongratulations\b/g, score: 0.10, flag: "spam_kw_winner" },
-    { re: /\bclaim\b|\bredeem\b/g, score: 0.08, flag: "spam_kw_claim" },
-    { re: /\bclick\b|\bclick here\b|\bopen link\b|\btap here\b/g, score: 0.10, flag: "spam_kw_click" },
-    { re: /\blimited time\b|\bact now\b|\bfinal notice\b|\bbefore midnight\b/g, score: 0.10, flag: "spam_kw_urgency_en" },
-    { re: /\bverify\b|\bconfirm\b|\baccount\b.*\b(suspended|locked)\b/g, score: 0.12, flag: "spam_kw_verify" },
-    { re: /\bprize\b|\bgift card\b|\bgiftcard\b|\bvoucher\b|\biphone\b|\bsurvey\b/g, score: 0.10, flag: "spam_kw_prize" },
-    { re: /\bloan\b|\bpre-?approved\b|\bno credit check\b/g, score: 0.12, flag: "spam_kw_loan" },
-    { re: /\bcrypto\b|\bairdrop\b|\bwallet\b|\bseed phrase\b/g, score: 0.10, flag: "spam_kw_crypto" },
-    { re: /\bdelivery failed\b|\breschedule\b|\bpackage\b|\bcourier\b/g, score: 0.10, flag: "spam_kw_delivery" },
-    { re: /\btax refund\b|\bunpaid\b|\brefund\b|\bchargeback\b/g, score: 0.10, flag: "spam_kw_refund" },
-  ];
+  const kw = [
+    ["free", "spam_kw_free"],
+    ["winner", "spam_kw_winner"],
+    ["claim", "spam_kw_claim"],
+    ["click", "spam_kw_click"],
+    ["verify", "spam_kw_verify"],
+    ["prize", "spam_kw_prize"],
+    ["urgent", "spam_kw_urgency_en"],
+    ["limited time", "spam_kw_urgency_en"],
+    ["today only", "spam_kw_urgency_en"],
+  ] as const;
 
-  let addScore = 0;
-  const addFlags: string[] = [];
-  let hitCount = 0;
-
-  for (const p of patterns) {
-    const m = t.match(p.re);
-    if (m && m.length > 0) {
-      hitCount += m.length;
-      addScore += p.score; // suma “por patrón”, no por ocurrencia (controlado)
-      addFlags.push(p.flag);
-    }
+  for (const [s, flag] of kw) {
+    if (t.includes(s)) hits.push(flag);
   }
 
-  // cap para no sobre-castigar
-  addScore = Math.min(0.35, addScore);
+  if (hits.length === 0) return { hitCount: 0, addScore: 0, addFlags: [] };
 
-  if (hitCount > 0) addFlags.push("spam_keywords_en");
+  // conservative bump: 0.05 per hit, capped
+  const addScore = Math.min(0.25, hits.length * 0.05);
+  const addFlags = mergeFlags(["spam_keywords_en"], hits);
+  return { hitCount: hits.length, addScore, addFlags };
+}
 
-  return { addScore, addFlags, hitCount };
+function decideAction(params: {
+  score: number;
+  warnT: number;
+  blockT: number;
+  strongSpam: boolean;
+  intention?: string;
+  flags: string[];
+  policy?: RulesetPolicy;
+}): GateAction {
+  const {
+    score,
+    warnT,
+    blockT,
+    strongSpam,
+    intention = "",
+    flags,
+    policy = {},
+  } = params;
+
+  const blockIntentions = new Set(policy.block_intentions ?? []);
+  const warnIntentions = new Set(policy.warn_intentions ?? []);
+  const blockFlags = new Set(policy.block_flags ?? []);
+  const warnFlags = new Set(policy.warn_flags ?? []);
+
+  // 1) explicit overrides (if provided)
+  if (blockIntentions.has(intention)) return "BLOCK";
+  if (flags.some((f) => blockFlags.has(f))) return "BLOCK";
+
+  if (warnIntentions.has(intention)) return "WARN";
+  if (flags.some((f) => warnFlags.has(f))) return "WARN";
+
+  // 2) strong spam override (configurable)
+  const strongSpamBlock = policy.strong_spam_block ?? true;
+  if (strongSpamBlock && strongSpam) return "BLOCK";
+
+  // 3) thresholds
+  if (score >= blockT) return "BLOCK";
+  if (score >= warnT) return "WARN";
+  return "ALLOW";
 }
 
 /**
  * Gate principal (producto): deterministic + barato.
  */
 export function gateLLM(text: string, config: GateConfig = {}): GateResult {
-  const warnT = config.warnThreshold ?? 0.25;
-  const blockT = config.blockThreshold ?? 0.6;
+  const ruleset = config.ruleset;
+
+  // thresholds: ruleset > config > defaults
+  const warnT = ruleset?.thresholds?.warn ?? config.warnThreshold ?? 0.25;
+  const blockT = ruleset?.thresholds?.block ?? config.blockThreshold ?? 0.6;
 
   const r = runEntropyFilter(text);
 
@@ -103,32 +168,28 @@ export function gateLLM(text: string, config: GateConfig = {}): GateResult {
   }
 
   // intención base (intention.ts)
-  let intention = r.intention_evaluation.intention || "unknown";
-  let confidence = r.intention_evaluation.confidence ?? 0;
-  let rationale = r.intention_evaluation.rationale ?? "";
+  const intention = r.intention_evaluation.intention || "unknown";
+  const confidence = r.intention_evaluation.confidence ?? 0;
+  const rationale = r.intention_evaluation.rationale ?? "";
 
-  // si pegó booster EN y quedó unknown → marketing_spam
-  if (booster.hitCount > 0 && intention === "unknown") {
-    intention = "marketing_spam";
-    confidence = Math.max(confidence, 0.75);
-    rationale = (rationale ? rationale + " " : "") + "Detecté keywords típicas de spam/phishing en inglés.";
-  }
-
-  // reglas fuertes (para BLOCK “vendible”)
-  const hasSpam =
-    flags.includes("spam_sales") ||
-    flags.includes("spam_keywords_en");
-
+  // heuristic: "strong spam" only when BOTH spam_sales + money_signal are present
+  // (tune this in entropy.ts; here we only consume flags)
+  const hasSpam = flags.includes("spam_sales");
   const hasMoneySignals =
-    flags.includes("money_signal") ||
-    flags.includes("spam_kw_prize") ||
-    flags.includes("spam_kw_loan");
-
+    flags.includes("money_signal") || flags.includes("money_signal_high");
   const strongSpam = hasSpam && hasMoneySignals;
 
-  let action: GateAction = "ALLOW";
-  if (score > blockT || strongSpam) action = "BLOCK";
-  else if (score >= warnT) action = "WARN";
+  const policy: RulesetPolicy = ruleset?.policy ?? {};
+
+  const action: GateAction = decideAction({
+    score,
+    warnT,
+    blockT,
+    strongSpam,
+    intention,
+    flags,
+    policy,
+  });
 
   return {
     action,

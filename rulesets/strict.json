@@ -3,23 +3,171 @@
   "version": 1,
   "description": "Aggressive preset for public endpoints and high-abuse environments.",
   "thresholds": { "warn": 0.35, "block": 0.55 },
-  "normalization": { "lowercase": true, "trim": true, "collapse_whitespace": true, "unicode_nfkc": true },
+  "normalization": {
+    "lowercase": true,
+    "trim": true,
+    "collapse_whitespace": true,
+    "unicode_nfkc": true
+  },
+  "policy": {
+    "strong_spam_block": false,
+    "block_flags": ["fraud_payment_request", "scam_wfh", "phishing_verify_threat_en", "phishing_2fa_code"]
+  },
   "hard_triggers": [
-    { "id": "shouting", "type": "signal", "weight": 0.22, "patterns": ["[A-ZÁÉÍÓÚÑ]{5,}", "!!+", "\\?\\?+", "¡¡+"] },
-    { "id": "money_signal", "type": "topic_hint", "weight": 0.18, "patterns": ["\\$\\d+", "\\b%\\b", "\\bfree\\b", "\\bgratis\\b"] },
-    { "id": "links", "type": "signal", "weight": 0.20, "patterns": ["https?://", "www\\.", "\\bbit\\.ly\\b"] },
-    { "id": "conspiracy_vague", "type": "topic_hint", "weight": 0.18, "patterns": ["\\btodos\\s+lo\\s+esconden\\b", "\\btruth\\s+is\\s+hidden\\b"] }
+    {
+      "id": "shouting",
+      "type": "signal",
+      "weight": 0.22,
+      "patterns": ["[A-ZÁÉÍÓÚÑ]{5,}", "!!+", "\\?\\?+", "¡¡+"]
+    },
+    {
+      "id": "money_signal",
+      "type": "topic_hint",
+      "weight": 0.18,
+      "patterns": ["\\$\\d+", "\\b%\\b", "\\bfree\\b", "\\bgratis\\b"]
+    },
+    {
+      "id": "links",
+      "type": "signal",
+      "weight": 0.2,
+      "patterns": ["https?://", "www\\.", "\\bbit\\.ly\\b"]
+    },
+    {
+      "id": "conspiracy_vague",
+      "type": "topic_hint",
+      "weight": 0.18,
+      "patterns": ["\\btodos\\s+lo\\s+esconden\\b", "\\btruth\\s+is\\s+hidden\\b"]
+    },
+        {
+      "id": "phishing_2fa_code_request_es",
+      "type": "topic_hint",
+      "weight": 0.60,
+      "notes": "ES: solicitud de código de verificación / 2FA (alto riesgo de phishing).",
+      "patterns": [
+        "\\bc[oó]digo\\s+de\\s+verificaci[oó]n\\b",
+        "\\bc[oó]digo\\s+de\\s+seguridad\\b",
+        "\\btoken\\s+de\\s+verificaci[oó]n\\b",
+        "\\bclave\\s+de\\s+verificaci[oó]n\\b",
+        "\\benv[ií]ame\\s+tu\\s+c[oó]digo\\b",
+        "\\bm[aá]ndame\\s+tu\\s+c[oó]digo\\b"
+      ]
+    },
+    {
+      "id": "fraud_card_request_es",
+      "type": "topic_hint",
+      "weight": 0.55,
+      "notes": "ES: solicitud de tarjeta/datos bancarios (alto riesgo de fraude).",
+      "patterns": [
+        "\\b(tarjeta|n[uú]mero\\s+de\\s+tarjeta)\\b",
+        "\\b(cv[vv]|cvc)\\b",
+        "\\bfecha\\s+de\\s+vencimiento\\b",
+        "\\bpor\\s+mensaje\\s+tu\\s+tarjeta\\b",
+        "\\bm[aá]ndame\\s+tu\\s+tarjeta\\b",
+        "\\benv[ií]ame\\s+tu\\s+tarjeta\\b"
+      ]
+    },
+    {
+      "id": "phish_account_threat_en",
+      "type": "topic_hint",
+      "weight": 0.35,
+      "notes": "EN: verify account + threat of closure (phishing-ish).",
+      "patterns": [
+        "\\bverify\\s+your\\s+account\\b.*\\b(closed|suspended|disabled)\\b",
+        "\\bor\\s+it\\s+will\\s+be\\s+(closed|suspended|disabled)\\b"
+      ]
+    },
+    {
+      "id": "scam_easy_money_es",
+      "type": "topic_hint",
+      "weight": 0.45,
+      "notes": "ES: estafa típica de dinero fácil / desde casa.",
+      "patterns": [
+        "gana\\s+dinero\\s+desde\\s+casa",
+        "sin\\s+esfuerzo",
+        "ingresos\\s+pasivos",
+        "dinero\\s+f[aá]cil"
+      ]
+    }
   ],
   "topics": [
-    { "id": "marketing_spam", "weight": 0.45, "signals": [
-      { "id": "cta", "weight": 0.22, "patterns": ["\\bclick\\b", "\\bclaim\\b", "\\bbuy\\b", "\\bcompra\\b"] },
-      { "id": "promo", "weight": 0.18, "patterns": ["\\bwin\\b", "\\bganaste\\b", "\\bgratis\\b", "\\bfree\\b"] }
-    ]},
-    { "id": "coercion", "weight": 0.30, "signals": [
-      { "id": "threat", "weight": 0.22, "patterns": ["\\bor\\s+else\\b", "\\bsi\\s+no\\b", "\\bI\\s+will\\b", "\\bte\\s+voy\\s+a\\b"] }
-    ]},
-    { "id": "conspiracy", "weight": 0.25, "signals": [
-      { "id": "hidden", "weight": 0.20, "patterns": ["\\bocult\\w+\\b", "\\bhidden\\b", "\\bsecret\\b"] }
-    ]}
+    {
+      "id": "marketing_spam",
+      "weight": 0.45,
+      "signals": [
+        {
+          "id": "cta",
+          "weight": 0.22,
+          "patterns": ["\\bclick\\b", "\\bclaim\\b", "\\bbuy\\b", "\\bcompra\\b"]
+        },
+        {
+          "id": "promo",
+          "weight": 0.18,
+          "patterns": ["\\bwin\\b", "\\bganaste\\b", "\\bgratis\\b", "\\bfree\\b"]
+        }
+      ]
+    },
+    {
+      "id": "coercion",
+      "weight": 0.3,
+      "signals": [
+        {
+          "id": "threat",
+          "weight": 0.22,
+          "patterns": ["\\bor\\s+else\\b", "\\bsi\\s+no\\b", "\\bI\\s+will\\b", "\\bte\\s+voy\\s+a\\b"]
+        }
+      ]
+    },
+    {
+      "id": "conspiracy",
+      "weight": 0.25,
+      "signals": [
+        {
+          "id": "hidden",
+          "weight": 0.2,
+          "patterns": ["\\bocult\\w+\\b", "\\bhidden\\b", "\\bsecret\\b"]
+        }
+      ]
+    },
+    {
+      "id": "phishing_fraud",
+      "weight": 0.45,
+      "signals": [
+        {
+          "id": "verify_account_request",
+          "weight": 0.3,
+          "patterns": [
+            "\\bverify\\s+your\\s+account\\b",
+            "\\bconfirm\\s+your\\s+account\\b",
+            "\\baccount\\s+will\\s+be\\s+closed\\b",
+            "\\bcódigo\\s+de\\s+verificación\\b",
+            "\\benvíame\\s+tu\\s+código\\b",
+            "\\bconfirma\\s+tu\\s+cuenta\\b"
+          ]
+        },
+        {
+          "id": "financial_data_request",
+          "weight": 0.35,
+          "patterns": [
+            "\\bmandas\\s+tu\\s+tarjeta\\b",
+            "\\benvía\\s+tu\\s+tarjeta\\b",
+            "\\bsend\\s+me\\s+your\\s+card\\b",
+            "\\btransferencia\\b",
+            "\\bwire\\b",
+            "\\bdeposito\\b",
+            "\\bdepósito\\b"
+          ]
+        },
+        {
+          "id": "easy_money_scam",
+          "weight": 0.25,
+          "patterns": [
+            "\\bgana\\s+dinero\\s+desde\\s+casa\\b",
+            "\\bearn\\s+money\\s+from\\s+home\\b",
+            "\\bsin\\s+esfuerzo\\b",
+            "\\bno\\s+experience\\s+needed\\b"
+          ]
+        }
+      ]
+    }
   ]
 }

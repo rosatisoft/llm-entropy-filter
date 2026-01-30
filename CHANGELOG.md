@@ -1,55 +1,155 @@
-# Changelog
+[1.2.0] – 2026-01-29
+Major Improvements
 
-All notable changes to this project will be documented in this file.
+Introduced policy-based deterministic overrides
 
-The format is based on semantic versioning principles.
+block_flags
 
----
+warn_flags
 
-## [1.1.0] - 2026-01-28
+Implemented hard escalation independent of entropy score.
 
-### 🚀 Added
+Eliminated BLOCK → ALLOW leaks in benchmark dataset.
 
-- Introduced formal **ruleset architecture** (`default`, `strict`, `support`, `public-api`).
-- Added `rulesets/` directory for configurable entropy presets.
-- Added integration examples:
-  - Express middleware
-  - Fastify plugin
-  - Vercel AI SDK pre-gate wrapper
-- Added reproducible benchmark scripts for spam dataset evaluation.
-- Added economic & performance impact documentation.
-- Added stability & hallucination mitigation section in README.
-- Added production-readiness checklist.
+Improved logical signal clustering behavior.
 
-### 🧪 Bench & Metrics
+Refactored gate.ts decision flow for clearer policy precedence.
 
-- Included reproducible SMS spam dataset benchmarking.
-- Added support for generating precision / recall style reports.
-- Added structured telemetry output for integration logging.
+Decision Flow Order (Updated)
 
-### 🛠 Internal
+Score calculation
 
-- No changes to core `gate()` logic.
-- No breaking changes to public API.
-- Existing behavior remains the default under `ruleset: "default"`.
+Policy overrides
 
-### ⚠️ Breaking Changes
+Threshold comparison
 
-None.
+Final action resolution
 
-This release focuses on infrastructure packaging, documentation clarity, and integration readiness without altering the deterministic entropy engine.
+Security Improvements
 
----
+Deterministic phishing escalation (phishing_2fa_code)
 
-## [1.0.1] - 2026-01-27
+Fraud payment request detection
 
-### Added
+Scam work-from-home detection
 
-- Initial demo server (`/analyze`, `/triad`)
-- Deterministic entropy scoring
-- ALLOW / WARN / BLOCK verdict structure
-- Performance benchmark documentation
-## 1.2.0 - 2026-01-28
-- (planned) Reproducible metrics suite (precision/recall)
-- (planned) Structured metrics output (non-breaking)
-- (planned) Ruleset configuration helpers (merge/validate)
+Strong spam clustering logic
+
+Shouting + money signal amplification
+
+Metrics (public-api preset)
+
+Recall improved from 33% → 50%
+
+F1 improved to 66.67%
+
+BLOCK→ALLOW leaks: 0
+
+Deterministic behavior confirmed
+
+Internal Refactors
+
+Cleaned entropy.ts
+
+Cleaned gate.ts decision logic
+
+Clarified ruleset schema
+
+Improved type safety
+
+[1.1.0] – 2026-01-28
+Added
+
+Configurable strong_spam_block policy option
+
+Initial policy override support
+
+Ruleset-level normalization controls
+
+Benchmark CLI metrics runner
+
+Improvements
+
+Improved spam keyword coverage
+
+Added urgency detection
+
+Added fraud signal hints
+
+Added link detection patterns
+
+Known Limitations
+
+Contextual false negatives on isolated phishing patterns
+
+No cluster-based deterministic override
+
+Score-only dependency in some edge cases
+
+[1.0.0] – Initial Release
+Features
+
+Deterministic entropy scoring engine
+
+Hard trigger system
+
+Topic hint architecture
+
+Threshold-based decisions (warn / block)
+
+Public API preset
+
+Strict preset
+
+CLI benchmark tool
+
+Philosophy
+
+Linguistic entropy detection
+
+Deterministic filtering
+
+Middleware-first design
+
+Roadmap (Next Minor Versions)
+Planned for 1.3.x
+
+Flag cluster policies (block on combination)
+
+Configurable signal groups
+
+Weighted cluster escalation
+
+Expanded multilingual patterns
+
+Subject/intent classification layer
+
+Future (Enterprise Layer – Separate Project)
+
+Context memory
+
+Behavioral pattern tracking
+
+Secondary AI review pipeline
+
+Adaptive thresholding
+
+Admin dashboard
+
+Threat intelligence feeds
+
+Versioning Philosophy
+
+This project evolves by:
+
+Increasing determinism
+
+Improving recall without sacrificing precision
+
+Strengthening policy clarity
+
+Maintaining reproducibility
+
+No hidden behavior.
+No silent escalation.
+No model dependency.

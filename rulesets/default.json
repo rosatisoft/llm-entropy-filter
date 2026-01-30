@@ -3,6 +3,8 @@
   "version": 1,
   "description": "Balanced preset: safe defaults for general apps.",
   "thresholds": { "warn": 0.45, "block": 0.65 },
+  "policy": { "strong_spam_block": false },
+
   "normalization": {
     "lowercase": true,
     "trim": true,
@@ -71,3 +73,5 @@
     }
   ]
 }
+
+

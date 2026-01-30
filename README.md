@@ -1,404 +1,297 @@
-# llm-entropy-filter
+llm-entropy-filter
 
-[![npm version](https://img.shields.io/npm/v/llm-entropy-filter.svg)](https://www.npmjs.com/package/llm-entropy-filter)
-[![license](https://img.shields.io/npm/l/llm-entropy-filter.svg)](LICENSE)
+Deterministic linguistic entropy gate for LLM inputs.
 
-Minimal, fast **entropy + intent gate** for LLM inputs.
+llm-entropy-filter is a lightweight, configurable middleware that evaluates text using linguistic and logical entropy signals before it reaches an LLM.
 
-`llm-entropy-filter` is a deterministic, local middleware layer that filters high-entropy / low-signal inputs before they reach expensive LLM inference.
+It is not an AI model.
+It is a deterministic decision layer.
 
-It transforms your LLM from a generic processor into a **premium signal resource**.
+Why This Exists
 
----
+Modern LLM systems face:
 
-# 🚀 Why this exists
+Spam floods
 
-LLMs are powerful but:
+Phishing attempts
 
-- Expensive per token
-- Latency-heavy (seconds vs milliseconds)
-- Vulnerable to spam, coercion, broken causality, and noise
+Fraud requests
 
-Most systems solve this with *more processing*.
+Prompt injection
 
-`llm-entropy-filter` solves it with **criterion before processing**.
+Manipulative urgency
 
----
+Entropic noise
 
-# 🧠 Architecture
+Most systems try to solve this reactively inside the model.
 
-The system operates in two deterministic local layers:
+This project solves it before the model.
 
-## Layer 1 — Hard Triggers (Deterministic Signals)
+Order before generation.
+Criteria before probability.
 
-Immediate structural patterns:
+Core Principles
 
-- Shouting (ALL CAPS)
-- Urgency markers
-- Money / % signals
-- Spam phrasing
-- Conspiracy vagueness
-- Broken causality structures
-- Repetition anomalies
+Deterministic (no randomness)
 
-These are language-light, low-cost, and capture obvious noise.
+Linguistic + logical analysis
 
-## Layer 2 — Thematic Scoring (Signal Accumulation)
+Configurable via rulesets
 
-If no hard block occurs, the input is evaluated by topic clusters:
+Fully reproducible scoring
 
-- Marketing spam
-- Conspiracy framing
-- Coercive tone
-- Pseudo-scientific structure
-- Relativism / truth dilution
-- Semantic incoherence
+No external API calls
 
-Each topic contributes to an `entropy_score`.
+Middleware-ready
 
-Final verdict:
-
+Architecture Overview
+Text
+  ↓
+Normalization
+  ↓
+Hard Triggers
+  ↓
+Topic Signals
+  ↓
+Entropy Scoring
+  ↓
+Policy Overrides
+  ↓
+Threshold Decision
+  ↓
 ALLOW | WARN | BLOCK
 
+Installation
+npm install llm-entropy-filter
 
-Returned with:
-
-```json
-{
-  "action": "BLOCK",
-  "entropy_score": 0.7,
-  "flags": [...],
-  "intention": "...",
-  "confidence": 0.85,
-  "rationale": "..."
-}
-
-
-No network calls. No embeddings. No remote inference.
-
-## Rulesets
-
-This project ships with preset rule packs:
-
-- `default` (balanced)
-- `strict` (aggressive blocking)
-- `support` (fewer false positives)
-- `public-api` (hardened for open endpoints)
-
-Rulesets live in `rulesets/` and define:
-- thresholds (WARN/BLOCK)
-- hard triggers
-- topic scoring weights
-
-## Integrations
-
-This repo includes ready-to-use adapters under `integrations/`:
-
-- `integrations/express.mjs` — Express middleware gate (ALLOW/WARN/BLOCK)
-- `integrations/fastify.mjs` — Fastify plugin gate
-- `integrations/vercel-ai-sdk.mjs` — pre-gate wrapper for `streamText()` / `generateText()`
-- `integrations/langchain.mjs` — pre-gate + optional Runnable wrapper for LangChain
-
-These integrations do **not** change core behavior. They only call `gate()` and route based on the verdict.
-
-## Examples
-
-npm i llm-entropy-filter express openai
-export OPENAI_API_KEY="sk-..."
-node examples/express-rag-gate-server.mjs
-
-flowchart TD
-  U[User / Client] --> API[Public API / Chat Endpoint]
-
-  API --> G[Entropy Gate (local, deterministic)]
-  G -->|BLOCK| B[Block Response<br/>(<10ms) + flags + rationale]
-  G -->|WARN| W[Warn Response<br/>(<10ms) + suggested next-step]
-  G -->|ALLOW| P[LLM Pipeline]
-
-  P -->|RAG (optional)| R[RAG Retriever]
-  R --> C[Context Builder]
-  C --> L[LLM / Reasoning Model]
-  L --> OUT[Final Answer]
-
-  G --> LOG[Metrics / Logs]
-  P --> LOG
-
-### Mini case study
-
-## 🧪 Production Scenario (Case Study)
-
-**Context:** A startup ships a public chat widget on their website. Traffic is mixed: legitimate users + spam + prompt abuse + low-signal “conspiracy/vague” prompts.
-
-**Before (`Direct LLM`):**
-- Every message hits the LLM.
-- Latency is dominated by model roundtrip.
-- Rate limits are consumed by noise.
-- Debugging is harder (no deterministic explanation layer).
-
-**After (`Entropy Gate → LLM`):**
-- The gate blocks obvious spam/coercion/conspiracy-vague patterns locally.
-- Only high-signal inputs reach the expensive model layer.
-- System gains headroom on rate limits and stabilizes UX.
-
-**Operational effects:**
-- **Lower average tail latency** (blocked traffic returns immediately).
-- **Budget efficiency increases** (LLM tokens reserved for real users).
-- **Better incident response** (flags + rationale make abuse patterns traceable).
-
-## ✅ Production Checklist
-
-- [ ] Choose a ruleset (default/strict/public-api/support)
-- [ ] Log gate decisions (flags + rationale) for traceability
-- [ ] Add metrics (blocked %, warned %, p95 latency)
-- [ ] Place gate *before* RAG retrieval to avoid wasted embeddings/search
-- [ ] Enforce rate limits *after* gate for maximum headroom
-
-
-📦 Installation
-npm i llm-entropy-filter
-
-⚡ Quickstart
+Quick Usage
 import { gate } from "llm-entropy-filter";
+import ruleset from "./rulesets/public-api.js";
 
-const result = gate("¡¡COMPRA YA!! Oferta limitada 90% OFF $$$");
+const result = gate("FREE prize winner click now claim $100!!!", {
+  ruleset
+});
 
 console.log(result);
 
-🖥 Demo Server
 
-The demo server wraps the local gate.
+Example output:
 
-Start
-npm run serve
+{
+  "action": "BLOCK",
+  "entropy_score": 0.85,
+  "flags": ["spam_sales", "money_signal", "shouting"],
+  "intention": "marketing_spam",
+  "confidence": 0.85
+}
 
+Actions
+Action	Meaning
+ALLOW	Low entropy, safe to process
+WARN	Suspicious signals detected
+BLOCK	High entropy or deterministic policy match
+Rulesets
 
-(Ensure your package.json includes: "serve": "node demo/server.mjs")
+Behavior is controlled entirely by rulesets.
 
-Health
-curl http://127.0.0.1:3000/health
+Each ruleset defines:
 
-Local gate
-curl -X POST http://127.0.0.1:3000/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"text":"FREE iPhone!!! Click now!!!"}'
+thresholds
 
-Optional LLM Triad (Demo Only)
-export OPENAI_API_KEY="YOUR_KEY"
-export OPENAI_MODEL="gpt-4.1-mini"
+normalization
 
-curl -X POST http://127.0.0.1:3000/triad \
-  -H "Content-Type: application/json" \
-  -d '{"text":"Vivimos en una simulación y todos lo esconden."}'
+hard triggers
 
+topic signals
 
-If OPENAI_API_KEY is not set, /triad returns 503.
+policy overrides
 
-⚡ Performance (Measured)
+Example:
 
-Environment:
-GitHub Codespaces (Linux container), Node 24.x
+{
+  "name": "public-api",
+  "thresholds": { "warn": 0.4, "block": 0.6 },
+  "policy": {
+    "block_flags": ["phishing_2fa_code"],
+    "warn_flags": ["scam_wfh"]
+  }
+}
 
-Local Gate — /analyze
+Threshold Logic
 
-Avg latency: 5.28 ms
+Decision is score-based unless overridden by policy.
 
-p50: 4 ms
+if score >= block → BLOCK
+else if score >= warn → WARN
+else → ALLOW
 
-p99: 16 ms
+Policy Overrides (Deterministic Control Layer)
 
-Throughput: ~5,118 req/sec
+Rulesets may define deterministic overrides:
 
-0 errors
-
-LLM Roundtrip — /triad
-
-Avg latency: 5,321 ms
-
-p50: 5,030 ms
-
-Throughput: ~0.34 req/sec
-
-2 timeouts in 30s test
-
-Note: These represent different pipeline layers (local deterministic vs external LLM API). The architectural gain comes from avoiding unnecessary LLM calls.
-
-📉 Economic Impact (Projection)
-Assumptions
-
-300 tokens per request (150 in / 150 out)
-
-gpt-4o-mini pricing baseline
-
-30% traffic filtered locally
-
-Effect
-
-If 1M requests are received:
-
-300,000 requests never hit the LLM
-
-30% token cost avoided
-
-30% rate-limit headroom gained
-
-30% reduction in latency pressure
-
-Savings scale linearly with volume and exponentially with higher-cost models.
-
-Formula:
-
-Savings =
-(Filtered_Requests / Total_Requests)
-× Avg_Tokens_Per_Request
-× Token_Price
-
-🛡 Stability & Hallucination Mitigation
-
-High-entropy inputs increase:
-
-Off-topic generation
-
-Reasoning drift
-
-Prompt injection exposure
-
-Token expansion loops
-
-By constraining input entropy before inference,
-the downstream model operates in a narrower semantic bandwidth.
-
-This improves stability without imposing moral or ideological constraints.
-
-🧪 Dataset Benchmark
-
-Included:
-
-bench/sms_spam.csv
+"policy": {
+  "block_flags": ["phishing_2fa_code"],
+  "warn_flags": ["fraud_payment_request"]
+}
 
 
-Run:
+Behavior:
 
-node bench/sms_spam_bench.mjs bench/sms_spam.csv
+If any block_flag matches → BLOCK (independent of score)
+
+If any warn_flag matches → at least WARN
+
+Otherwise → threshold decision
+
+This allows:
+
+Fraud cluster blocking
+
+Linguistic certainty escalation
+
+Safe tuning without lowering global thresholds
+
+Logical Clusters
+
+Entropy is not triggered by single words.
+
+It increases when patterns accumulate.
+
+Example combinations:
+
+spam_kw_click + spam_kw_claim + spam_kw_free
+
+urgency + fraud_payment_request
+
+phishing_verify_threat + money_signal
+
+Suspicion grows with structural density.
+
+This reflects a linguistic-logical principle, not keyword matching alone.
+
+Deterministic Stability Guarantee
+
+For identical input + identical ruleset:
+
+Output is deterministic
+
+Score is reproducible
+
+Flags are traceable
+
+No external calls are made
+
+This makes the gate:
+
+Auditable
+
+Compliance-friendly
+
+Safe for logging
+
+Open-Source Scope
+
+This core version does NOT include:
+
+Context memory
+
+Session tracking
+
+Behavioral anomaly detection
+
+Identity verification
+
+AI secondary review
+
+Adaptive learning
+
+Those belong to orchestration layers or enterprise systems.
+
+This package focuses strictly on:
+
+Linguistic entropy filtering.
+
+Benchmarks
+
+Run metrics:
+
+npm run bench:metrics:public-api
+npm run bench:metrics:strict
 
 
-Generates:
+Reports include:
 
-Precision / recall
+Accuracy
+
+Precision / Recall
+
+F1 score
 
 Confusion matrix
 
-Top flags
+Per-tag accuracy
 
-JSON + Markdown reports
+Overblock / Underblock rates
 
-🎯 Design Goals
+The system is fully reproducible.
 
-Deterministic
+Tuning Strategy
 
-Transparent
+Do NOT blindly lower thresholds.
 
-Fast
+Prefer:
 
-Composable
+Add deterministic block_flags
 
-Observable
+Adjust pattern weights
 
-Economically rational
+Improve signal density
 
-🗺 Roadmap
+Then adjust thresholds if necessary
 
-Multilingual rulesets
+This preserves precision while increasing recall safely.
 
-Configurable rule packs
+Middleware Mode
 
-Express / Fastify middleware exports
+Typical production flow:
 
-Suggested rewrite mode
+User Input
+   ↓
+Entropy Gate
+   ↓
+ALLOW → LLM
+WARN  → Log / Rate-limit / Secondary review
+BLOCK → Reject
 
-Production case studies
+Philosophy
 
-👤 Attribution
+This project is grounded in a simple idea:
 
-Developed and maintained by Ernesto Rosati.
+Entropy precedes manipulation.
 
-If this library creates value for your organization,
-consider collaboration or sponsorship.
+Linguistic disorder precedes exploitation.
 
-📜 License
+A gate should not think.
+It should filter.
 
-Apache-2.0
-Copyright (c) 2026 Ernesto Rosati
+Version
 
-Use cases & integrations
-## ✅ Where this fits in real systems
+Current stable: v1.2.x
 
-`llm-entropy-filter` is designed to sit **before** expensive inference. Common placements:
+Features:
 
-### 1) Public chat apps (startups)
-Use as a first-line gate to block obvious spam/coercion before the LLM:
-- faster UX for rejected traffic (<10ms)
-- reduced token spend
-- reduced prompt-abuse surface
+Deterministic entropy scoring
 
-### 2) Rate-limit protection
-Acts as a semantic pre-filter that reduces:
-- quota exhaustion
-- burst abuse
-- coordinated spam floods
+Policy override system
 
-It creates headroom by rejecting high-entropy traffic locally.
+Configurable thresholds
 
-### 3) RAG pipelines (pre-retrieval gate)
-Before retrieval:
-- block low-signal queries that would waste retrieval + reranking
-- normalize/clean input to improve recall precision
-- prevent adversarial queries from polluting retrieval traces
+Hard trigger architecture
 
-### 4) Multi-agent systems
-In agent loops:
-- prevent “reasoning drift” from noisy inputs
-- keep agents from spending cycles on incoherent or adversarial prompts
-- add structured telemetry for agent decisions (`flags`, `intention`, `entropy_score`)
+Cluster-sensitive scoring
 
-### 5) Tooling & SDK pre-gates (LangChain / Vercel AI SDK)
-Drop in as a deterministic guard:
-- before `callLLM()`
-- before `streamText()`
-- before tool selection / agent routing
+Zero BLOCK→ALLOW leaks in benchmark dataset
 
-The output can be used as:
-- a routing signal (ALLOW/WARN/BLOCK)
-- a logging payload for audits and dashboards
+License
 
-“What’s missing to be production-ready” 
-## Production readiness checklist
-
-The core gate is stable, but “production-ready” requires:
-
-### 1) Configurable rulesets
-- `default` (balanced)
-- `strict` (aggressive spam/coercion blocking)
-- `support` (customer support / fewer false positives)
-- `public-api` (open endpoints / hardened)
-
-### 2) Reproducible metrics (precision / recall)
-Bench scripts should emit:
-- precision/recall/F1
-- confusion matrix
-- false-positive rate on normal conversations
-- top flags per dataset
-
-### 3) Copy-paste integrations
-Provide ready-to-use adapters:
-- Express middleware
-- Fastify plugin
-- Next.js / Vercel edge wrapper
-- “pre-gate” helpers for LangChain-style pipelines
-
-### 4) One real production example
-A minimal public case study:
-- traffic volume
-- % blocked
-- cost avoided
-- rate-limit incidents reduced
-- latency improvement for blocked traffic
+APACHE 2.0
