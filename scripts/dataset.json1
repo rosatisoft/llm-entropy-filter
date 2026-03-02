@@ -1,0 +1,35 @@
+{"id":"h01","text":"Hola, ¿me ayudas a resumir este texto y extraer los puntos principales?","expected_intention":"request_help","expected_action":"ALLOW","min_entropy":0,"must_flags":[]}
+{"id":"h02","text":"¿Puedes explicarme cómo configurar un servidor Windows en VMware paso a paso?","expected_intention":"request_help","expected_action":"ALLOW","min_entropy":0,"must_flags":[]}
+{"id":"h03","text":"Dame un checklist para publicar un paquete npm con TypeScript y tsup.","expected_intention":"request_help","expected_action":"ALLOW","min_entropy":0,"must_flags":[]}
+{"id":"h04","text":"¿Cómo se hace un POST con curl a un endpoint JSON?","expected_intention":"request_help","expected_action":"ALLOW","min_entropy":0,"must_flags":[]}
+{"id":"h05","text":"Necesito redactar un correo formal para un cliente. ¿Me ayudas?","expected_intention":"request_help","expected_action":"ALLOW","min_entropy":0,"must_flags":[]}
+
+{"id":"s01","text":"¡¡COMPRA YA!! Oferta limitada 90% OFF $$$ Haz clic aquí AHORA MISMO!!!","expected_intention":"marketing_spam","expected_action":"BLOCK","min_entropy":0.7,"must_flags":["urgency","spam_sales"]}
+{"id":"s02","text":"GANA DINERO RÁPIDO desde casa. Inversión mínima, retorno garantizado. Escríbeme YA.","expected_intention":"marketing_spam","expected_action":"BLOCK","min_entropy":0.6,"must_flags":["money_signal"]}
+{"id":"s03","text":"ÚLTIMA OPORTUNIDAD!!! Solo hoy, solo para ti, 2x1 si pagas en los próximos 10 minutos.","expected_intention":"marketing_spam","expected_action":"BLOCK","min_entropy":0.6,"must_flags":["urgency"]}
+{"id":"s04","text":"OFERTA EXCLUSIVA $$$ Entra aquí y duplica tu ingreso sin esfuerzo. Link en bio.","expected_intention":"marketing_spam","expected_action":"BLOCK","min_entropy":0.6,"must_flags":["money_signal"]}
+{"id":"s05","text":"🔥 PROMO 🔥 80% OFF. Compra antes de que se acabe. $$$","expected_intention":"marketing_spam","expected_action":"BLOCK","min_entropy":0.6,"must_flags":["urgency","money_signal"]}
+
+{"id":"m01","text":"Si de verdad me quisieras, harías esto. No tienes opción.","expected_intention":"manipulation","expected_action":"WARN","min_entropy":0.3,"must_flags":["emotional_manipulation"]}
+{"id":"m02","text":"Si no respondes ahora, será tu culpa si algo malo pasa.","expected_intention":"manipulation","expected_action":"WARN","min_entropy":0.3,"must_flags":["emotional_manipulation"]}
+{"id":"m03","text":"Después de todo lo que hice por ti, me debes esto. No me falles.","expected_intention":"manipulation","expected_action":"WARN","min_entropy":0.3,"must_flags":["emotional_manipulation"]}
+{"id":"m04","text":"Si no haces lo que digo, olvídate de mí. Te lo estás buscando.","expected_intention":"manipulation","expected_action":"WARN","min_entropy":0.3,"must_flags":["emotional_manipulation"]}
+{"id":"m05","text":"No me importa lo que quieras, esto es lo que vas a hacer.","expected_intention":"manipulation","expected_action":"WARN","min_entropy":0.3,"must_flags":["emotional_manipulation"]}
+
+{"id":"c01","text":"Vivimos en una simulación y todos lo saben pero lo esconden. La cultura lo prueba.","expected_intention":"conspiracy","expected_action":"WARN","min_entropy":0.3,"must_flags":["conspiracy_vague"]}
+{"id":"c02","text":"Los medios están controlados por “ellos”; por eso nunca verás la verdad en TV.","expected_intention":"conspiracy","expected_action":"WARN","min_entropy":0.3,"must_flags":["conspiracy_vague"]}
+{"id":"c03","text":"Hay un plan secreto para controlarnos y la evidencia está en todas partes si sabes mirar.","expected_intention":"conspiracy","expected_action":"WARN","min_entropy":0.3,"must_flags":["conspiracy_vague"]}
+{"id":"c04","text":"Todos los científicos serios lo saben pero lo ocultan por miedo. Investiga.","expected_intention":"conspiracy","expected_action":"WARN","min_entropy":0.3,"must_flags":["conspiracy_vague"]}
+{"id":"c05","text":"La cultura lo demuestra: hay fuerzas ocultas detrás de cada evento global.","expected_intention":"conspiracy","expected_action":"WARN","min_entropy":0.3,"must_flags":["conspiracy_vague","weak_evidence"]}
+
+{"id":"mi01","text":"La física cuántica demostró que nada existe hasta que lo observas; por eso tu mente crea la realidad. Si decretas riqueza, los átomos se alinean.","expected_intention":"misinformation","expected_action":"BLOCK","min_entropy":0.7,"must_flags":["pseudo_science_quantum","magic_manifesting","truth_relativism","broken_causality"]}
+{"id":"mi02","text":"No hay verdad objetiva: si lo sientes, es real. La materia obedece tu deseo.","expected_intention":"misinformation","expected_action":"BLOCK","min_entropy":0.7,"must_flags":["truth_relativism","magic_manifesting"]}
+{"id":"mi03","text":"Los pensamientos positivos curan cualquier enfermedad sin necesidad de médicos; la ciencia lo oculta.","expected_intention":"misinformation","expected_action":"BLOCK","min_entropy":0.6,"must_flags":["magic_manifesting"]}
+{"id":"mi04","text":"Si vibras alto, el universo está obligado a darte dinero; el esfuerzo solo muestra duda.","expected_intention":"misinformation","expected_action":"BLOCK","min_entropy":0.6,"must_flags":["magic_manifesting","urgency"]}
+{"id":"mi05","text":"La causalidad es una ilusión: lo real es tu intención. Todo lo externo es un reflejo que puedes reprogramar.","expected_intention":"misinformation","expected_action":"BLOCK","min_entropy":0.6,"must_flags":["broken_causality","truth_relativism"]}
+
+{"id":"mix01","text":"¿Me ayudas a redactar un anuncio para vender mi producto? Oferta por tiempo limitado.","expected_intention":"request_help","expected_action":"WARN","min_entropy":0.3,"must_flags":["urgency"]}
+{"id":"mix02","text":"¿Puedes revisar este mensaje? 'Si me quisieras, me darías tu contraseña'.","expected_intention":"request_help","expected_action":"WARN","min_entropy":0.3,"must_flags":["emotional_manipulation"]}
+{"id":"mix03","text":"Explícame por qué la gente cree que vivimos en una simulación. Quiero entender los argumentos.","expected_intention":"request_help","expected_action":"WARN","min_entropy":0.3,"must_flags":["conspiracy_vague"]}
+{"id":"mix04","text":"Quiero un resumen neutral de 'manifestación cuántica'. No quiero afirmaciones falsas.","expected_intention":"request_help","expected_action":"WARN","min_entropy":0.3,"must_flags":["pseudo_science_quantum"]}
+{"id":"mix05","text":"Necesito filtrar spam en comentarios. ¿Cómo lo detecto sin bloquear dudas legítimas?","expected_intention":"request_help","expected_action":"ALLOW","min_entropy":0,"must_flags":[]}

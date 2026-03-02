@@ -1,0 +1,102 @@
+{
+  "name": "default",
+  "version": 1,
+  "description": "Balanced preset: safe defaults for general apps.",
+  "thresholds": { "warn": 0.45, "block": 0.65 },
+  "policy": {
+  "strong_spam_block": false,
+
+  "block_intentions": ["phishing", "fraud", "scam"],
+  "warn_intentions": ["marketing_spam"],
+
+  "warn_flags": [
+    "spam_keywords_en",
+    "spam_sales",
+    "spam_kw_free",
+    "spam_kw_crypto",
+    "spam_kw_bonus",
+    "money_signal",
+    "urgency"
+  ],
+
+  "block_combos": [
+    { "all": ["phishing"] }
+  ],
+
+  "warn_combos": [
+    { "all": ["spam_keywords_en"] },
+    { "all": ["spam_sales"] },
+    { "all": ["money_signal", "urgency"] }
+  ]
+},
+
+  "normalization": {
+    "lowercase": true,
+    "trim": true,
+    "collapse_whitespace": true,
+    "unicode_nfkc": true
+  },
+  "hard_triggers": [
+    {
+      "id": "shouting",
+      "type": "signal",
+      "weight": 0.18,
+      "notes": "Excess uppercase or repeated punctuation",
+      "patterns": ["[A-ZÁÉÍÓÚÑ]{6,}", "!!+", "\\?\\?+", "¡¡+", "…{3,}"]
+    },
+    {
+      "id": "urgency",
+      "type": "topic_hint",
+      "weight": 0.12,
+      "patterns": ["\\bnow\\b", "\\btoday\\b", "\\burgent\\b", "\\bya\\b", "\\bahora\\b", "\\bhoy\\b", "\\búltim[oa]s?\\b", "\\bsolo\\s+hoy\\b"]
+    },
+    {
+      "id": "money_signal",
+      "type": "topic_hint",
+      "weight": 0.12,
+      "patterns": ["\\$\\d+", "\\bUSD\\b", "\\bMXN\\b", "\\b%\\b", "\\b90%\\b", "\\bfree\\b", "\\bgratis\\b", "\\bpromo\\b", "\\bdiscount\\b", "\\boffer\\b", "\\boferta\\b"]
+    },
+    {
+      "id": "conspiracy_vague",
+      "type": "topic_hint",
+      "weight": 0.14,
+      "patterns": ["\\ball\\s+hide\\b", "\\bthey\\s+hide\\b", "\\beveryone\\s+knows\\b", "\\btodos\\s+lo\\s+esconden\\b", "\\bla\\s+verdad\\s+oculta\\b", "\\bnadie\\s+quiere\\s+que\\s+sepas\\b"]
+    }
+  ],
+  "topics": [
+    {
+      "id": "marketing_spam",
+      "weight": 0.35,
+      "signals": [
+        { "id": "cta", "weight": 0.18, "patterns": ["\\bclick\\b", "\\bclaim\\b", "\\bbuy\\b", "\\bcompra\\b", "\\borden(a|e)\\b"] },
+        { "id": "promo_terms", "weight": 0.15, "patterns": ["\\bfree\\b", "\\bgratis\\b", "\\bwin\\b", "\\bganaste\\b", "\\biphone\\b", "\\bpremio\\b"] },
+        { "id": "links", "weight": 0.12, "patterns": ["https?://", "www\\.", "\\bbit\\.ly\\b"] }
+      ]
+    },
+    {
+      "id": "coercion",
+      "weight": 0.25,
+      "signals": [
+        { "id": "threat", "weight": 0.18, "patterns": ["\\bor\\s+else\\b", "\\bsi\\s+no\\b", "\\bte\\s+voy\\s+a\\b", "\\bI\\s+will\\b"] },
+        { "id": "forced_tone", "weight": 0.12, "patterns": ["\\bdo\\s+it\\b", "\\bhazlo\\b", "\\bahora\\b"] }
+      ]
+    },
+    {
+      "id": "conspiracy",
+      "weight": 0.25,
+      "signals": [
+        { "id": "vague_all", "weight": 0.18, "patterns": ["\\btodos\\b", "\\beveryone\\b", "\\bthey\\b", "\\bel\\s+sistema\\b"] },
+        { "id": "hidden_truth", "weight": 0.14, "patterns": ["\\bocult\\w+\\b", "\\bhidden\\b", "\\bsecret\\b", "\\bcover\\s*up\\b"] }
+      ]
+    },
+    {
+      "id": "broken_causality",
+      "weight": 0.15,
+      "signals": [
+        { "id": "contradiction_markers", "weight": 0.12, "patterns": ["\\bpero\\s+entonces\\b", "\\btherefore\\b.*\\bnot\\b", "\\bsi\\s+A\\s+entonces\\s+no\\s+A\\b"] }
+      ]
+    }
+  ]
+}
+
+

@@ -1,0 +1,49 @@
+node_modules
+dist
+*.log
+# Bench artifacts
+bench/reports/
+bench/*.csv
+lef-user-demo/
+test-app/# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Bench artifacts
+bench/reports/
+bench/*.csv
+
+# Local demo / test apps
+lef-user-demo/
+test-app/
+
+# npm pack / publish artifacts
+*.tgz
+
+# OS / Editor noise
+.DS_Store
+Thumbs.db
+
+# Local scratch scripts
+scripts/
+
+node_modules/
+dist/
+
+# npm pack / publish artifacts
+*.tgz
+
+# Local scripts / scratch
+scripts/
+
+# Legacy / experimental bench scripts
+bench/sms_spam_bench.mjs
+bench/benchmark.mjs

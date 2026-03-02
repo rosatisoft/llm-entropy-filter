@@ -1,0 +1,20 @@
+{"text":"Congratulations. You won a FREE iPhone. Click here to claim now.","label":"BLOCK","tags":["spam","marketing"]}
+{"text":"FREE prize winner!!! click now to get money fast","label":"BLOCK","tags":["spam","marketing","urgency"]}
+{"text":"Hola, necesito ayuda para configurar ESXi 6.7 en mi red local.","label":"ALLOW","tags":["support","it"]}
+{"text":"¿Puedes explicarme la diferencia entre RAM ECC y no ECC?","label":"ALLOW","tags":["it","question"]}
+{"text":"Vivimos en una simulación y todos lo esconden.","label":"WARN","tags":["conspiracy","vague"]}
+{"text":"Los gobiernos controlan todo y no quieren que lo sepas.","label":"WARN","tags":["conspiracy","vague"]}
+{"text":"Compra ahora, última oportunidad, solo hoy, oferta irrepetible.","label":"WARN","tags":["urgency","marketing"]}
+{"text":"Necesito cotizar dos servidores Lenovo SR650 con 256GB RAM y NVMe.","label":"ALLOW","tags":["business","it"]}
+{"text":"Te deposito si me mandas tu tarjeta, urge hoy.","label":"BLOCK","tags":["fraud","urgency"]}
+{"text":"Click here to verify your account immediately or it will be closed.","label":"BLOCK","tags":["phishing","urgency"]}
+{"text":"¿Cuál es la mejor forma de hacer backups con TrueNAS y ZFS replication?","label":"ALLOW","tags":["it","storage"]}
+{"text":"Esto es obvio: todos saben que la tierra es plana y lo ocultan.","label":"WARN","tags":["conspiracy","vague"]}
+{"text":"¡Gana dinero desde casa sin esfuerzo!","label":"BLOCK","tags":["spam","scam"]}
+{"text":"Hello, can you help me debug a Node ESM import error?","label":"ALLOW","tags":["dev","it"]}
+{"text":"I have proof they’re hiding the truth from us.","label":"WARN","tags":["conspiracy","vague"]}
+{"text":"Limited time offer!!! Buy now!!!","label":"WARN","tags":["marketing","urgency"]}
+{"text":"Envíame tu código de verificación para confirmar tu cuenta.","label":"BLOCK","tags":["phishing","fraud"]}
+{"text":"¿Me ayudas a escribir una carta formal de reconocimiento?","label":"ALLOW","tags":["writing"]}
+{"text":"Rival rival rival seis rivales que un rival.","label":"WARN","tags":["low_signal","nonsense"]}
+{"text":"Necesito ayuda para integrar un middleware en Express.","label":"ALLOW","tags":["dev"]}

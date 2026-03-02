@@ -1,83 +1,93 @@
-// demo/server.mjs
 import express from "express";
 import OpenAI from "openai";
-import { runEntropyFilter } from "../dist/index.js"; // usa el build (dist) para demo estable
+
+import { gate } from "../dist/index.js";
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
-app.get("/health", (_req, res) => res.json({ ok: true }));
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
-app.post("/analyze", (req, res) => {
-  const text = String(req.body?.text ?? "");
-  const result = runEntropyFilter(text);
-  res.json({ input: text, ...result });
-});
+const APP_VERSION =
+  process.env.APP_VERSION ||
+  process.env.npm_package_version || // cuando lo corres con npm run ...
+  "dev";
 
-// ---- LLM WRAPPER (OpenAI) ----
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-function makeGate(entropyResult) {
-  // ejemplo de umbrales (ajústalos)
-  const score = entropyResult.entropy_analysis.score;
-  const flags = entropyResult.entropy_analysis.flags;
-
-  if (score >= 0.7 || flags.includes("magic_manifesting") || flags.includes("truth_relativism")) {
-    return { action: "BLOCK" };
-  }
-  if (score >= 0.25 || flags.includes("weak_evidence") || flags.includes("conspiracy_vague")) {
-    return { action: "WARN" };
-  }
-  return { action: "ALLOW" };
+// Self-test opcional (solo si lo pides)
+if (process.env.DEBUG_SELFTEST === "1") {
+  const t = "Congratulations. You won a FREE iPhone. Click here to claim now.";
+  console.log("[debug] gate selftest:", gate(t));
 }
 
-app.post("/chat", async (req, res) => {
-  try {
-    const text = String(req.body?.text ?? "");
-    const filtered = runEntropyFilter(text);
-    const gate = makeGate(filtered);
-
-    // 1) BLOCK => no LLM
-    if (gate.action === "BLOCK") {
-      return res.json({
-        gate,
-        filtered,
-        answer: "Bloqueado por alta entropía (riesgo de pseudo-ciencia / coerción / relativismo / causalidad rota). Si quieres, reformula con hechos verificables y evidencia."
-      });
-    }
-
-    // 2) WARN => LLM pero con instrucciones estrictas anti-alucinación
-    const extraInstructions =
-      gate.action === "WARN"
-        ? "Responde con cautela. No afirmes como hecho. Señala supuestos, pide evidencia, ofrece alternativas verificables y evita lenguaje persuasivo."
-        : "Responde directo, claro y verificable.";
-
-    // Responses API (OpenAI)
-    const response = await client.responses.create({
-      model: "gpt-4o-mini",
-      instructions: extraInstructions,
-      input: text
-    });
-
-    return res.json({
-      gate,
-      filtered,
-      answer: response.output_text
-    });
-  } catch (err) {
-    return res.status(500).json({ error: String(err?.message ?? err) });
-  }
-});
+app.get("/health", (req, res) => res.json({ ok: true, version: APP_VERSION }));
 
 app.get("/", (req, res) => {
   res.type("text").send(
-    "llm-entropy-filter is running. Try GET /health or POST /analyze"
+    "llm-entropy-filter is running. Try GET /health or POST /analyze (and POST /triad if OPENAI_API_KEY is set)."
   );
 });
 
-const PORT = process.env.PORT || 3000;
-const HOST = "0.0.0.0";
+// 1) Gate local (producto v1.0.x)
+app.post("/analyze", (req, res) => {
+  const text = String(req.body?.text ?? "");
+  const out = gate(text);
 
-app.listen(PORT, HOST, () => {
-  console.log(`[entropy-filter] listening on http://${HOST}:${PORT}`);
+  // Debug por request (solo si lo pides)
+  if (process.env.DEBUG_ANALYZE === "1") {
+    console.log("[debug] /analyze hit:", Date.now(), "len=", text.length, "action=", out.action);
+  }
+
+  res.json({
+    ...out,
+    meta: {
+      ts: Date.now(),
+      version: APP_VERSION,
+    },
+  });
+});
+
+// 2) Triad demo (opcional: usa OpenAI)
+app.post("/triad", async (req, res) => {
+  const text = String(req.body?.text ?? "");
+  const out = gate(text);
+
+  if (!openai) {
+    return res.status(503).json({
+      gate: out,
+      error: "OPENAI_API_KEY not set. /triad is a demo endpoint.",
+    });
+  }
+
+  const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+
+  const prompt = `Analiza el texto con enfoque sobrio:
+1) Afirmaciones no verificables
+2) Saltos lógicos
+3) Versión más sobria y verificable
+
+Texto:
+${text}`;
+
+  const completion = await openai.chat.completions.create({
+    model,
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.2,
+  });
+
+  const triadText = completion.choices?.[0]?.message?.content ?? "";
+
+  res.json({
+    gate: out,
+    triad: {
+      model,
+      text: triadText,
+    },
+  });
+});
+
+const port = Number(process.env.PORT || 3000);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`[entropy-filter] listening on http://0.0.0.0:${port}`);
 });

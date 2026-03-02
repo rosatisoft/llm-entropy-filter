@@ -1,0 +1,129 @@
+{
+  "name": "public-api",
+  "version": 1,
+  "description": "Safe default for public endpoints: low false-positives, strong phishing blocks via policy.",
+  "thresholds": { "warn": 0.4, "block": 0.6 },
+  "normalization": {
+    "lowercase": true,
+    "trim": true,
+    "collapse_whitespace": true,
+    "unicode_nfkc": true
+  },
+  "policy": {
+    "strong_spam_block": false,
+
+    "block_flags": [
+      "phishing_verify_threat_en",
+      "phishing_2fa_code"
+    ],
+    "warn_flags": [
+      "fraud_payment_request",
+      "scam_wfh"
+    ],
+
+    "block_combos": [
+      { "all": ["spam_kw_free", "spam_kw_claim", "spam_kw_click"] },
+      { "all": ["spam_kw_free", "spam_kw_click", "spam_kw_prize"] },
+      { "all": ["spam_kw_free", "spam_kw_winner", "spam_kw_click"] }
+    ]
+  },
+  "hard_triggers": [
+    {
+      "id": "spam_sales",
+      "type": "signal",
+      "weight": 0.22,
+      "patterns": [
+        "\\boffer\\b",
+        "\\blimited\\b",
+        "\\bpromo\\b",
+        "\\bdeal\\b",
+        "\\boferta\\b",
+        "\\bpromoci[oó]n\\b",
+        "\\bgana\\b",
+        "\\bdinero\\b"
+      ]
+    },
+    {
+      "id": "money_signal",
+      "type": "signal",
+      "weight": 0.18,
+      "patterns": [
+        "\\$\\s?\\d+",
+        "\\b%\\b",
+        "\\bgratis\\b",
+        "\\bfree\\b"
+      ]
+    },
+    {
+      "id": "links",
+      "type": "signal",
+      "weight": 0.2,
+      "patterns": [
+        "https?://",
+        "www\\.",
+        "\\bbit\\.ly\\b",
+        "\\bt\\.co\\b"
+      ]
+    },
+    {
+      "id": "urgency",
+      "type": "signal",
+      "weight": 0.2,
+      "patterns": [
+        "\\burgent\\b",
+        "\\bimmediately\\b",
+        "\\bnow\\b",
+        "\\bhoy\\b",
+        "\\bya\\b",
+        "\\bde inmediato\\b",
+        "\\bap[úu]rate\\b",
+        "\\burge\\b"
+      ]
+    },
+    {
+      "id": "phishing_verify_threat_en",
+      "type": "signal",
+      "weight": 0.35,
+      "patterns": [
+        "\\bverify your account\\b.*\\b(closed|suspend|disabled)\\b",
+        "\\baccount\\b.*\\b(closed|suspended|disabled)\\b"
+      ]
+    },
+    {
+      "id": "phishing_2fa_code",
+      "type": "signal",
+      "weight": 0.55,
+      "patterns": [
+        "c[oó]digo de verificaci[oó]n",
+        "\\bverification code\\b",
+        "\\b2fa\\b",
+        "\\bone-time\\b.*\\bcode\\b",
+        "\\botp\\b"
+      ]
+    },
+    {
+      "id": "fraud_payment_request",
+      "type": "signal",
+      "weight": 0.35,
+      "patterns": [
+        "\\bte deposito\\b",
+        "\\bte transfiero\\b",
+        "\\bmandas tu tarjeta\\b",
+        "\\bclabe\\b",
+        "\\bn[uú]mero de tarjeta\\b"
+      ]
+    },
+    {
+      "id": "scam_wfh",
+      "type": "signal",
+      "weight": 0.35,
+      "patterns": [
+        "dinero desde casa",
+        "work from home",
+        "wfh",
+        "sin esfuerzo",
+        "easy money"
+      ]
+    }
+  ]
+}

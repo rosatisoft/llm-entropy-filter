@@ -1,0 +1,158 @@
+NPM Publish Checklist (llm-entropy-filter)
+0) Decide versión (regla simple)
+
+Si ya publicaste 1.2.0 en npm → publica 1.2.1 (patch).
+
+Si no has publicado 1.2.0 → publica 1.2.0.
+
+Comandos:
+
+npm view llm-entropy-filter version
+
+1) Estado del repo
+git status
+git branch --show-current
+git log -1 --oneline
+
+
+✅ Debes estar en release/v1.2.0 y limpio (sin cambios sin commitear) o con cambios listos.
+
+2) Validar que todo compila y tests mínimos
+npm ci
+npm run build
+npm test --silent || true
+
+
+Si no hay tests, al menos:
+
+node -e "import('./dist/index.js').then(m=>console.log('ok'))"
+
+3) Benchmark sanity (opcional pero recomendado)
+npm run bench:metrics:public-api
+npm run bench:metrics:strict
+
+
+✅ Confirma que no hay “metrics failed” y que los reportes se generan.
+
+4) Revisar package.json (lo esencial)
+
+Verifica:
+
+"name": "llm-entropy-filter"
+
+"version": "X.Y.Z" correcto
+
+"main" y/o "module" apuntando a dist/
+
+"types": "dist/index.d.ts" (o equivalente)
+
+"files": ["dist", "rulesets", "README.md", ...] (si usas files)
+
+"license" presente
+
+"repository" y "homepage" correctos
+
+Chequeo rápido:
+
+cat package.json
+
+5) Validar “lo que realmente se publicará”
+
+Este paso evita el clásico “se me fue un archivo / publiqué basura”.
+
+npm pack --dry-run
+
+
+✅ Revisa:
+
+que dist/ se incluya
+
+que rulesets/ se incluya
+
+que README/SECURITY/etc estén como quieres
+
+que NO se incluyan cosas enormes (bench datasets, logs, etc.)
+
+Si algo sobra/falta:
+
+ajusta "files" en package.json o
+
+agrega .npmignore
+
+6) Verificar README render (muy importante)
+
+npm usa el README del paquete publicado. Asegura que:
+
+el nombre/quickstart están al inicio
+
+ejemplos copy/paste funcionan
+
+menciona rulesets: default, public-api, strict
+
+menciona policy flags/thresholds
+
+links (GitHub) correctos
+
+Chequeo local:
+
+sed -n '1,80p' README.md
+
+7) Login correcto y permisos
+npm whoami
+npm profile get
+
+
+Si no estás logueado:
+
+npm login
+
+
+Si publicas bajo scope o org, revisa access.
+
+8) Tag de git (recomendado)
+git tag -a v1.2.0 -m "llm-entropy-filter v1.2.0"
+git push --tags
+
+
+(Si vas a 1.2.1, cambia el tag.)
+
+9) Publicar (elige una opción)
+Opción A: Public normal
+npm publish
+
+Opción B: Si es scoped package y quieres público:
+npm publish --access public
+
+10) Verificación post-publish (obligatorio)
+npm view llm-entropy-filter version
+npm view llm-entropy-filter dist-tags
+
+
+Prueba instalación “limpia”:
+
+mkdir -p /tmp/lef-test && cd /tmp/lef-test
+npm init -y
+npm i llm-entropy-filter
+node -e "import('llm-entropy-filter').then(m=>console.log(m.gate('FREE crypto bonus!!!')))"
+
+11) Si algo salió mal (plan de emergencia)
+
+Publicaste algo roto: publica patch inmediato:
+
+npm version patch
+npm publish
+
+
+Publicaste archivos de más: arregla .npmignore/files, patch y republish.
+
+README mal: patch y publish (npm no actualiza sin nueva versión).
+
+Recomendación final para tu caso (por lo que vimos)
+
+Antes de publicar, haz sí o sí:
+
+npm pack --dry-run
+
+prueba instalación en carpeta limpia
+
+confirmar que dist y rulesets van incluidos

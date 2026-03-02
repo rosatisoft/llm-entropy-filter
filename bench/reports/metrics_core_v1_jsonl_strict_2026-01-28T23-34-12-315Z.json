@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "dataset": "bench/datasets/core_v1.jsonl",
+    "rulesetName": "strict",
+    "timestamp": "2026-01-28T23-34-12-315Z"
+  },
+  "report": {
+    "summary": {
+      "total": 20,
+      "correct": 10,
+      "accuracy": 0.5,
+      "latency_ms_total": 4,
+      "latency_ms_avg": 0.21729374999999998
+    },
+    "primary": {
+      "class": "BLOCK",
+      "precision": 1,
+      "recall": 0.3333333333333333,
+      "f1": 0.5,
+      "TP": 2,
+      "FP": 0,
+      "FN": 4
+    },
+    "behavior": {
+      "overblock_allow_to_block": 0,
+      "underblock_block_to_allow": 0.5
+    },
+    "matrix": {
+      "ALLOW": {
+        "ALLOW": 7,
+        "WARN": 0,
+        "BLOCK": 0
+      },
+      "WARN": {
+        "ALLOW": 6,
+        "WARN": 1,
+        "BLOCK": 0
+      },
+      "BLOCK": {
+        "ALLOW": 3,
+        "WARN": 1,
+        "BLOCK": 2
+      }
+    },
+    "perTag": {
+      "spam": {
+        "total": 3,
+        "correct": 2
+      },
+      "marketing": {
+        "total": 4,
+        "correct": 3
+      },
+      "urgency": {
+        "total": 5,
+        "correct": 2
+      },
+      "support": {
+        "total": 1,
+        "correct": 1
+      },
+      "it": {
+        "total": 5,
+        "correct": 5
+      },
+      "question": {
+        "total": 1,
+        "correct": 1
+      },
+      "conspiracy": {
+        "total": 4,
+        "correct": 0
+      },
+      "vague": {
+        "total": 4,
+        "correct": 0
+      },
+      "business": {
+        "total": 1,
+        "correct": 1
+      },
+      "fraud": {
+        "total": 2,
+        "correct": 0
+      },
+      "phishing": {
+        "total": 2,
+        "correct": 0
+      },
+      "storage": {
+        "total": 1,
+        "correct": 1
+      },
+      "scam": {
+        "total": 1,
+        "correct": 0
+      },
+      "dev": {
+        "total": 2,
+        "correct": 2
+      },
+      "writing": {
+        "total": 1,
+        "correct": 1
+      },
+      "low_signal": {
+        "total": 1,
+        "correct": 0
+      },
+      "nonsense": {
+        "total": 1,
+        "correct": 0
+      }
+    },
+    "errors": []
+  }
+}

@@ -1,9 +1,13 @@
 {
   "name": "llm-entropy-filter",
-  "version": "1.0.0",
-  "description": "entropy_analysis, intention_evaluation, triad_response, plain_text_summary",
+  "version": "1.2.0",
+  "description": "Fast entropy and intent gate for LLM inputs (ALLOW/WARN/BLOCK). Reduces hallucinations, cost and spam before calling an LLM.",
   "license": "Apache-2.0",
   "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,21 +15,56 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./integrations/express": {
+      "import": "./integrations/express.mjs"
+    },
+    "./integrations/fastify": {
+      "import": "./integrations/fastify.mjs"
+    },
+    "./integrations/vercel-ai-sdk": {
+      "import": "./integrations/vercel-ai-sdk.mjs"
+    },
+    "./integrations/langchain": {
+      "import": "./integrations/langchain.mjs"
+    },
+    "./rulesets/default": {
+      "import": "./rulesets/default.js"
+    },
+    "./rulesets/strict": {
+      "import": "./rulesets/strict.js"
+    },
+    "./rulesets/public-api": {
+      "import": "./rulesets/public-api.js"
+    },
+    "./rulesets/support": {
+      "import": "./rulesets/support.js"
     }
   },
   "files": [
     "dist",
-    "README.md"
+    "integrations",
+    "rulesets",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
-    "clean": "rm -rf dist node_modules package-lock.json",
-    "clean:dist": "rm -rf dist",
-    "build": "tsup",
+    "clean": "rimraf dist",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
     "demo": "npm run build && node demo/demo.mjs",
     "bench": "npm run build && node bench/benchmark.mjs",
+
+    "bench:metrics": "npm run build && node bench/metrics.mjs --dataset bench/datasets/core_v1.jsonl --ruleset default",
+    "bench:all": "npm run bench && npm run bench:metrics",
+
+    "bench:metrics:strict": "npm run build && node bench/metrics.mjs --dataset bench/datasets/core_v1.jsonl --ruleset strict",
+    "bench:metrics:public-api": "npm run build && node bench/metrics.mjs --dataset bench/datasets/core_v1.jsonl --ruleset public-api",
+
     "serve": "npm run build && node demo/server.mjs",
-    "prepublishOnly": "npm run clean:dist && npm run build"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
@@ -35,14 +74,27 @@
     "url": "https://github.com/rosatisoft/llm-entropy-filter/issues"
   },
   "homepage": "https://github.com/rosatisoft/llm-entropy-filter#readme",
+  "keywords": [
+    "llm",
+    "ai",
+    "prompt-filter",
+    "input-validation",
+    "entropy",
+    "spam-detection",
+    "content-moderation",
+    "heuristics",
+    "guardrails",
+    "openai"
+  ],
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.10",
+    "autocannon": "^8.0.0",
+    "express": "^5.2.1",
+    "minimist": "^1.2.8",
+    "openai": "^6.16.0",
+    "rimraf": "^6.0.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "express": "^5.2.1",
-    "openai": "^6.16.0"
   }
 }

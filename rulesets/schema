@@ -1,0 +1,24 @@
+{
+  "name": "default",
+  "version": 1,
+  "description": "Balanced preset",
+  "thresholds": { "warn": 0.45, "block": 0.65 },
+  "hard_triggers": [
+    { "id": "shouting", "type": "pattern", "weight": 0.20, "patterns": ["..."] }
+  ],
+  "topics": [
+    {
+      "id": "marketing_spam",
+      "weight": 0.25,
+      "signals": [
+        { "id": "money_signal", "weight": 0.10, "patterns": ["..."] }
+      ]
+    }
+  ],
+  "normalization": {
+    "lowercase": true,
+    "trim": true,
+    "collapse_whitespace": true,
+    "unicode_nfkc": true
+  }
+}

@@ -1,147 +1,297 @@
-# llm-entropy-filter
+llm-entropy-filter
 
-Minimal, fast **entropy + intent gate** for LLM inputs.
+Deterministic linguistic entropy gate for LLM inputs.
 
-This package detects high-entropy patterns (spam, coercion, vague conspiracies, pseudo-science, truth relativism, broken causality) and returns:
+llm-entropy-filter is a lightweight, configurable middleware that evaluates text using linguistic and logical entropy signals before it reaches an LLM.
 
-- `entropy_analysis` → `{ score: 0..1, flags: string[] }`
-- `intention_evaluation` → `{ intention, confidence, rationale }`
+It is not an AI model.
+It is a deterministic decision layer.
 
-Use it as a **pre-filter** (middleware/wrapper) to:
-- block low-signal / high-entropy prompts,
-- warn and request reformulation,
-- reduce hallucinations and unnecessary LLM calls.
+Why This Exists
 
----
+Modern LLM systems face:
 
-## Install
+Spam floods
 
-```bash
-npm i llm-entropy-filter
+Phishing attempts
+
+Fraud requests
+
+Prompt injection
+
+Manipulative urgency
+
+Entropic noise
+
+Most systems try to solve this reactively inside the model.
+
+This project solves it before the model.
+
+Order before generation.
+Criteria before probability.
+
+Core Principles
+
+Deterministic (no randomness)
+
+Linguistic + logical analysis
+
+Configurable via rulesets
+
+Fully reproducible scoring
+
+No external API calls
+
+Middleware-ready
+
+Architecture Overview
+Text
+  ↓
+Normalization
+  ↓
+Hard Triggers
+  ↓
+Topic Signals
+  ↓
+Entropy Scoring
+  ↓
+Policy Overrides
+  ↓
+Threshold Decision
+  ↓
+ALLOW | WARN | BLOCK
+
+Installation
+npm install llm-entropy-filter
+
+Quick Usage
+import { gate } from "llm-entropy-filter";
+import ruleset from "./rulesets/public-api.js";
+
+const result = gate("FREE prize winner click now claim $100!!!", {
+  ruleset
+});
+
+console.log(result);
 
 
-Quickstart
-import { runEntropyFilter } from "llm-entropy-filter";
+Example output:
 
-const r = runEntropyFilter("¡¡COMPRA YA!! Oferta limitada 90% OFF $$$");
-console.log(r.entropy_analysis.score, r.entropy_analysis.flags);
-console.log(r.intention_evaluation);
-
-
-Output example (Entropy Trap)
-Input:
-“La física cuántica ya demostró… tú decretas… no hay verdad objetiva…”
-Result:
 {
-  "entropy_analysis": {
-    "score": 1,
-    "flags": [
-      "urgency",
-      "pseudo_science_quantum",
-      "magic_manifesting",
-      "truth_relativism",
-      "broken_causality"
-    ]
-  },
-  "intention_evaluation": {
-    "intention": "misinformation",
-    "confidence": 0.85,
-    "rationale": "Detecté patrón de pseudo-ciencia/pensamiento mágico/relativismo de la verdad; alta probabilidad de desinformación o argumento sin anclaje causal."
+  "action": "BLOCK",
+  "entropy_score": 0.85,
+  "flags": ["spam_sales", "money_signal", "shouting"],
+  "intention": "marketing_spam",
+  "confidence": 0.85
+}
+
+Actions
+Action	Meaning
+ALLOW	Low entropy, safe to process
+WARN	Suspicious signals detected
+BLOCK	High entropy or deterministic policy match
+Rulesets
+
+Behavior is controlled entirely by rulesets.
+
+Each ruleset defines:
+
+thresholds
+
+normalization
+
+hard triggers
+
+topic signals
+
+policy overrides
+
+Example:
+
+{
+  "name": "public-api",
+  "thresholds": { "warn": 0.4, "block": 0.6 },
+  "policy": {
+    "block_flags": ["phishing_2fa_code"],
+    "warn_flags": ["scam_wfh"]
   }
 }
 
+Threshold Logic
 
-Recommended usage: ALLOW / WARN / BLOCK
-A simple policy layer on top of entropy_analysis.score:
-< 0.25 → ALLOW
-0.25 – 0.60 → WARN (ask user to clarify / add evidence)
-> 0.60 → BLOCK (reject or require rewrite)
-Example:
-import { runEntropyFilter } from "llm-entropy-filter";
+Decision is score-based unless overridden by policy.
 
-function verdict(score: number) {
-  if (score > 0.6) return "BLOCK";
-  if (score >= 0.25) return "WARN";
-  return "ALLOW";
-}
+if score >= block → BLOCK
+else if score >= warn → WARN
+else → ALLOW
 
-export function gate(text: string) {
-  const r = runEntropyFilter(text);
-  return { action: verdict(r.entropy_analysis.score), ...r };
+Policy Overrides (Deterministic Control Layer)
+
+Rulesets may define deterministic overrides:
+
+"policy": {
+  "block_flags": ["phishing_2fa_code"],
+  "warn_flags": ["fraud_payment_request"]
 }
 
 
-CLI / Demo
-npm run demo
+Behavior:
+
+If any block_flag matches → BLOCK (independent of score)
+
+If any warn_flag matches → at least WARN
+
+Otherwise → threshold decision
+
+This allows:
+
+Fraud cluster blocking
+
+Linguistic certainty escalation
+
+Safe tuning without lowering global thresholds
+
+Logical Clusters
+
+Entropy is not triggered by single words.
+
+It increases when patterns accumulate.
+
+Example combinations:
+
+spam_kw_click + spam_kw_claim + spam_kw_free
+
+urgency + fraud_payment_request
+
+phishing_verify_threat + money_signal
+
+Suspicion grows with structural density.
+
+This reflects a linguistic-logical principle, not keyword matching alone.
+
+Deterministic Stability Guarantee
+
+For identical input + identical ruleset:
+
+Output is deterministic
+
+Score is reproducible
+
+Flags are traceable
+
+No external calls are made
+
+This makes the gate:
+
+Auditable
+
+Compliance-friendly
+
+Safe for logging
+
+Open-Source Scope
+
+This core version does NOT include:
+
+Context memory
+
+Session tracking
+
+Behavioral anomaly detection
+
+Identity verification
+
+AI secondary review
+
+Adaptive learning
+
+Those belong to orchestration layers or enterprise systems.
+
+This package focuses strictly on:
+
+Linguistic entropy filtering.
+
+Benchmarks
+
+Run metrics:
+
+npm run bench:metrics:public-api
+npm run bench:metrics:strict
 
 
-Benchmark
-Heuristic filter throughput (local):
-npm run bench
+Reports include:
 
-Example output:
-~313k ops/sec (200k loops)
+Accuracy
 
-API
-runEntropyFilter(text: string)
-Returns:
-entropy_analysis: { score: number; flags: string[] }
-intention_evaluation: { intention: "unknown" | "request_help" | "marketing_spam" | "manipulation" | "conspiracy" | "misinformation"; confidence: number; rationale?: string }
+Precision / Recall
 
-Design goals
-Fast: pure heuristics, no network calls
-Portable: works in any Node environment
-Composable: use as middleware/wrapper before calling an LLM
-Transparent: flags explain why a prompt is risky
+F1 score
 
-Roadmap
-gate() helper exported by the library (standard thresholds)
-Optional suggested_rewrite (ask for evidence/context to reduce entropy)
-Example integrations: Next.js / Vercel API Route, Express, Cloudflare Workers
-Comparative benchmark: LLM calls with vs without gating
+Confusion matrix
 
----
+Per-tag accuracy
 
-## Conceptual Model
+Overblock / Underblock rates
 
-This package is a **pre-reasoning coherence gate** for LLM pipelines.
+The system is fully reproducible.
 
-It does not “solve philosophy” or attempt to prove metaphysical claims.
-Instead, it enforces minimal structural constraints **before** an LLM call:
+Tuning Strategy
 
-- Signal vs noise separation
-- Causal coherence (rejects broken-causality framing)
-- Detection of manipulative patterns (spam / coercion)
-- Detection of pseudo-scientific or relativistic framing
+Do NOT blindly lower thresholds.
 
-**Goal:** reduce computational entropy and hallucination risk by preventing
-high-noise or structurally incoherent inputs from reaching the model.
+Prefer:
 
----
+Add deterministic block_flags
 
-## License
+Adjust pattern weights
 
-This project is licensed under the **Apache License 2.0**.
+Improve signal density
 
-Copyright (c) 2026 Ernesto Rosati
+Then adjust thresholds if necessary
 
-You are free to:
+This preserves precision while increasing recall safely.
 
-- Use the software for personal or commercial purposes  
-- Modify the source code  
-- Distribute original or modified versions  
+Middleware Mode
 
-Under the following conditions:
+Typical production flow:
 
-- You must retain the original copyright notice  
-- You must include a copy of the Apache 2.0 license  
-- Any modifications must be clearly documented  
+User Input
+   ↓
+Entropy Gate
+   ↓
+ALLOW → LLM
+WARN  → Log / Rate-limit / Secondary review
+BLOCK → Reject
 
-### Attribution & Support
+Philosophy
 
-If you use this project in production systems or commercial applications,
-please retain attribution to the original author.
+This project is grounded in a simple idea:
 
-Voluntary collaboration, sponsorship, or technical partnership inquiries are welcome.
+Entropy precedes manipulation.
 
-For the full license text, see the `LICENSE` file in this repository.
+Linguistic disorder precedes exploitation.
+
+A gate should not think.
+It should filter.
+
+Version
+
+Current stable: v1.2.x
+
+Features:
+
+Deterministic entropy scoring
+
+Policy override system
+
+Configurable thresholds
+
+Hard trigger architecture
+
+Cluster-sensitive scoring
+
+Zero BLOCK→ALLOW leaks in benchmark dataset
+
+License
+
+APACHE 2.0

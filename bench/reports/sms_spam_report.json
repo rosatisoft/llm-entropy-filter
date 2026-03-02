@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "ts": 1769556602332,
+    "dataset": "sms_spam.csv",
+    "samples": 39,
+    "runtime_ms": 3,
+    "throughput_rps": 13000,
+    "policy": {
+      "callsAvoidedDefinition": "BLOCK => no LLM call"
+    }
+  },
+  "totals": {
+    "all": 39,
+    "spam": 19,
+    "ham": 20
+  },
+  "byAction": {
+    "ALLOW": 30,
+    "WARN": 4,
+    "BLOCK": 5
+  },
+  "confusion": {
+    "spam": {
+      "ALLOW": 10,
+      "WARN": 4,
+      "BLOCK": 5
+    },
+    "ham": {
+      "ALLOW": 20,
+      "WARN": 0,
+      "BLOCK": 0
+    }
+  },
+  "topIntentions": [
+    [
+      "unknown",
+      23
+    ],
+    [
+      "marketing_spam",
+      16
+    ]
+  ],
+  "topFlags": [
+    [
+      "spam_keywords_en",
+      15
+    ],
+    [
+      "spam_kw_free",
+      4
+    ],
+    [
+      "spam_sales",
+      4
+    ],
+    [
+      "spam_kw_winner",
+      3
+    ],
+    [
+      "spam_kw_prize",
+      3
+    ],
+    [
+      "spam_kw_click",
+      3
+    ],
+    [
+      "spam_kw_urgency_en",
+      3
+    ],
+    [
+      "money_signal",
+      2
+    ],
+    [
+      "spam_kw_claim",
+      2
+    ],
+    [
+      "spam_kw_verify",
+      2
+    ],
+    [
+      "spam_kw_delivery",
+      2
+    ],
+    [
+      "shouting",
+      1
+    ],
+    [
+      "spam_kw_loan",
+      1
+    ],
+    [
+      "spam_kw_crypto",
+      1
+    ],
+    [
+      "spam_kw_refund",
+      1
+    ]
+  ],
+  "savings": {
+    "callsAvoided": 5,
+    "callsAvoided_pct": "12.82%"
+  }
+}

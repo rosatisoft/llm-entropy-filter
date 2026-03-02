@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "dataset": "bench/datasets/core_v1.jsonl",
+    "rulesetName": "strict",
+    "timestamp": "2026-01-29T07-58-08-019Z"
+  },
+  "report": {
+    "summary": {
+      "total": 20,
+      "correct": 13,
+      "accuracy": 0.65,
+      "latency_ms_total": 6,
+      "latency_ms_avg": 0.30528355000000024
+    },
+    "primary": {
+      "class": "BLOCK",
+      "precision": 1,
+      "recall": 0.8333333333333334,
+      "f1": 0.9090909090909091,
+      "TP": 5,
+      "FP": 0,
+      "FN": 1
+    },
+    "behavior": {
+      "overblock_allow_to_block": 0,
+      "underblock_block_to_allow": 0
+    },
+    "matrix": {
+      "ALLOW": {
+        "ALLOW": 7,
+        "WARN": 0,
+        "BLOCK": 0
+      },
+      "WARN": {
+        "ALLOW": 6,
+        "WARN": 1,
+        "BLOCK": 0
+      },
+      "BLOCK": {
+        "ALLOW": 0,
+        "WARN": 1,
+        "BLOCK": 5
+      }
+    },
+    "perTag": {
+      "spam": {
+        "total": 3,
+        "correct": 2
+      },
+      "marketing": {
+        "total": 4,
+        "correct": 2
+      },
+      "urgency": {
+        "total": 5,
+        "correct": 4
+      },
+      "support": {
+        "total": 1,
+        "correct": 1
+      },
+      "it": {
+        "total": 5,
+        "correct": 5
+      },
+      "question": {
+        "total": 1,
+        "correct": 1
+      },
+      "conspiracy": {
+        "total": 4,
+        "correct": 0
+      },
+      "vague": {
+        "total": 4,
+        "correct": 0
+      },
+      "business": {
+        "total": 1,
+        "correct": 1
+      },
+      "fraud": {
+        "total": 2,
+        "correct": 2
+      },
+      "phishing": {
+        "total": 2,
+        "correct": 2
+      },
+      "storage": {
+        "total": 1,
+        "correct": 1
+      },
+      "scam": {
+        "total": 1,
+        "correct": 1
+      },
+      "dev": {
+        "total": 2,
+        "correct": 2
+      },
+      "writing": {
+        "total": 1,
+        "correct": 1
+      },
+      "low_signal": {
+        "total": 1,
+        "correct": 0
+      },
+      "nonsense": {
+        "total": 1,
+        "correct": 0
+      }
+    },
+    "errors": []
+  }
+}
