@@ -2,6 +2,8 @@ llm-entropy-filter
 
 Deterministic linguistic entropy gate for LLM inputs.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18857125.svg)]
+
 llm-entropy-filter is a lightweight, configurable middleware that evaluates text using linguistic and logical entropy signals before it reaches an LLM.
 
 It is not an AI model.
