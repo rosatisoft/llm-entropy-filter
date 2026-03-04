@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: "llm-entropy-filter"
+message: "If you use this software, please cite it as follows."
+type: software
+authors:
+  - family-names: Rosati
+    given-names: Ernesto
+repository-code: "https://github.com/rosatisoft/llm-entropy-filter"
+license: Apache-2.0
+version: 1.2.0
+date-released: 2026
